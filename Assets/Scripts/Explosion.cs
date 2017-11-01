@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class Explosion : MonoBehaviour
 {
-	public float		radius = 10;
 	public GameObject	explosionPrefab;
 	public float		explosionPower = 10;
 	public bool			explode = false;
@@ -41,7 +40,7 @@ public class Explosion : MonoBehaviour
 	{
 		Vector3 explosionPosition = new Vector3(transform.position.x, 0, transform.position.z);
 		GameObject explosion = GameObject.Instantiate(explosionPrefab, explosionPosition, Quaternion.identity) as GameObject;
-		Destroy(explosion, 10);
+		Destroy(explosion, 5);
 
 		foreach (var obj in objectsInsideExplosion)
 		{
