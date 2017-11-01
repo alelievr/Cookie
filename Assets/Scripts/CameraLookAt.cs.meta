@@ -1,13 +1,11 @@
 fileFormatVersion: 2
-guid: b3ed26f994faa475c97d6b52332fea18
-timeCreated: 1509355661
+guid: 8d0b9a41e93b54a88b0210fe43d953bd
+timeCreated: 1509061890
 licenseType: Free
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - explosionPrefab: {fileID: 1092169526085590, guid: 4ad567e6a51e841b38f3a986e49cc8ca,
-      type: 2}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

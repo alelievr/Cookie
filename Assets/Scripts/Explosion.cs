@@ -39,7 +39,7 @@ public class Explosion : MonoBehaviour
 
 	void Explode()
 	{
-		Vector3 explosionPosition = new Vector3(transform.position.x, 0, transform.position.z);
+		Vector3 explosionPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
 		GameObject explosion = GameObject.Instantiate(explosionPrefab, explosionPosition, Quaternion.identity) as GameObject;
 		Destroy(explosion, 10);
 
@@ -47,7 +47,13 @@ public class Explosion : MonoBehaviour
 		{
 			Vector3 direction = (obj.transform.position - transform.position);
 			float dist = direction.magnitude;
-			obj.AddForce(direction * (1 / (dist * dist + .1f)) * explosionPower, ForceMode.Impulse);
+			obj.AddForce( 
+//						(dist > 100.0f) ? 
+//						direction * (1 / (dist * dist + .1f)) * explosionPower
+//						:
+						new Vector3(10.0f/(direction.x * (  (dist ) ) * explosionPower), 10.0f/(direction.y * (  (dist ) ) * explosionPower), 10.0f/(direction.z * (  (dist ) ) * explosionPower))
+, ForceMode.Impulse
+						);
 		}
 		explode = false;
 	}
