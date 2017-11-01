@@ -46,13 +46,7 @@ public class Explosion : MonoBehaviour
 		{
 			Vector3 direction = (obj.transform.position - transform.position);
 			float dist = direction.magnitude;
-			obj.AddForce( 
-//						(dist > 100.0f) ? 
-//						direction * (1 / (dist * dist + .1f)) * explosionPower
-//						:
-						new Vector3(10.0f/(direction.x * (  (dist ) ) * explosionPower), 10.0f/(direction.y * (  (dist ) ) * explosionPower), 10.0f/(direction.z * (  (dist ) ) * explosionPower))
-, ForceMode.Impulse
-						);
+			obj.AddForceAtPosition(direction * (1 / (dist * dist + .1f)) * explosionPower, transform.position, ForceMode.Impulse);
 		}
 		explode = false;
 	}
