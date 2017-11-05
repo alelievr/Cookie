@@ -1,15 +1,16 @@
 ﻿
 Shader "Unlit/TunnelShader"
-{
+{	
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags {"Queue"="Transparent" "RenderType"="Transparent" }
 		LOD 100
-
+		ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
 		Pass
 		{
 			CGPROGRAM
@@ -133,7 +134,7 @@ float accum;
     #ifdef	VIGNETTE_RENDER
 //    col.xyz = blackbody( ( (1.1-length(uv)*1.1)*inter.w) *200. );
     #endif
-    			col_o =  accum*float4(col, .2);
+    			col_o =  accum*float4(col, 1.+sin(t) )*.0;
 				return col_o;
 			}
 
