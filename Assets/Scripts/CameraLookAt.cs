@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CameraLookAt : MonoBehaviour {
 
-	public GameObject lookat;
+	public GameObject	lookat;
+	public float		speed = 1;
 
 	float length;
 
@@ -14,11 +15,11 @@ public class CameraLookAt : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void LateUpdate () {
+	void FixedUpdate () {
 		
 		transform.LookAt(lookat.transform);
 
-		transform.position = lookat.transform.position + new Vector3(Mathf.Sin(Time.time), 0, Mathf.Cos(Time.time)) * length;
+		transform.position = lookat.transform.position + new Vector3(Mathf.Sin(Time.time * speed), 0, Mathf.Cos(Time.time * speed)) * length;
 
 	}
 }

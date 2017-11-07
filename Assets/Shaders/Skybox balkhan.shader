@@ -1,19 +1,10 @@
 ﻿// Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
-Shader "Skybox/Procedural" {
+Shader "Custom/Procedural Skybox" {
 Properties {
-    [KeywordEnum(None, Simple, High Quality)] _SunDisk ("Sun", Int) = 2
-    _SunSize ("Sun Size", Range(0,1)) = 0.04
-    _SunSizeConvergence("Sun Size Convergence", Range(1,10)) = 5
-
-    _AtmosphereThickness ("Atmosphere Thickness", Range(0,5)) = 1.0
-    _SkyTint ("Sky Tint", Color) = (.5, .5, .5, 1)
-    _GroundColor ("Ground", Color) = (.369, .349, .341, 1)
-
-    _Exposure("Exposure", Range(0, 8)) = 1.3
-
 	_sam ("Texture", 2D) = "white" { }
-
+	_var ("var", Range(-20., 20.)) = 0.5 
+	_intensity ("intensity", Float) = 0.5 
 }
 
 SubShader {
@@ -39,88 +30,9 @@ SubShader {
         uniform half _AtmosphereThickness;
 
 		sampler2D	_sam;
+		float		_var;
+		float		_intensity;
 
-    #if defined(UNITY_COLORSPACE_GAMMA)
-        #define GAMMA 2
-        #define COLOR_2_GAMMA(color) color
-        #define COLOR_2_LINEAR(color) color*color
-        #define LINEAR_2_OUTPUT(color) sqrt(color)
-    #else
-        #define GAMMA 2.2
-        // HACK: to get gfx-tests in Gamma mode to agree until UNITY_ACTIVE_COLORSPACE_IS_GAMMA is working properly
-        #define COLOR_2_GAMMA(color) ((unity_ColorSpaceDouble.r>2.0) ? pow(color,1.0/GAMMA) : color)
-        #define COLOR_2_LINEAR(color) color
-        #define LINEAR_2_LINEAR(color) color
-    #endif
-
-        // RGB wavelengths
-        // .35 (.62=158), .43 (.68=174), .525 (.75=190)
-        static const float3 kDefaultScatteringWavelength = float3(.65, .57, .475);
-        static const float3 kVariableRangeForScatteringWavelength = float3(.15, .15, .15);
-
-        #define OUTER_RADIUS 1.025
-        static const float kOuterRadius = OUTER_RADIUS;
-        static const float kOuterRadius2 = OUTER_RADIUS*OUTER_RADIUS;
-        static const float kInnerRadius = 1.0;
-        static const float kInnerRadius2 = 1.0;
-
-        static const float kCameraHeight = 0.0001;
-
-        #define kRAYLEIGH (lerp(0.0, 0.0025, pow(_AtmosphereThickness,2.5)))      // Rayleigh constant
-        #define kMIE 0.0010             // Mie constant
-        #define kSUN_BRIGHTNESS 20.0    // Sun brightness
-
-        #define kMAX_SCATTER 50.0 // Maximum scattering value, to prevent math overflows on Adrenos
-
-        static const half kHDSundiskIntensityFactor = 15.0;
-        static const half kSimpleSundiskIntensityFactor = 27.0;
-
-        static const half kSunScale = 400.0 * kSUN_BRIGHTNESS;
-        static const float kKmESun = kMIE * kSUN_BRIGHTNESS;
-        static const float kKm4PI = kMIE * 4.0 * 3.14159265;
-        static const float kScale = 1.0 / (OUTER_RADIUS - 1.0);
-        static const float kScaleDepth = 0.25;
-        static const float kScaleOverScaleDepth = (1.0 / (OUTER_RADIUS - 1.0)) / 0.25;
-        static const float kSamples = 2.0; // THIS IS UNROLLED MANUALLY, DON'T TOUCH
-
-        #define MIE_G (-0.990)
-        #define MIE_G2 0.9801
-
-        #define SKY_GROUND_THRESHOLD 0.02
-
-        // fine tuning of performance. You can override defines here if you want some specific setup
-        // or keep as is and allow later code to set it according to target api
-
-        // if set vprog will output color in final color space (instead of linear always)
-        // in case of rendering in gamma mode that means that we will do lerps in gamma mode too, so there will be tiny difference around horizon
-        // #define SKYBOX_COLOR_IN_TARGET_COLOR_SPACE 0
-
-        // sun disk rendering:
-        // no sun disk - the fastest option
-        #define SKYBOX_SUNDISK_NONE 0
-        // simplistic sun disk - without mie phase function
-        #define SKYBOX_SUNDISK_SIMPLE 1
-        // full calculation - uses mie phase function
-        #define SKYBOX_SUNDISK_HQ 2
-
-        // uncomment this line and change SKYBOX_SUNDISK_SIMPLE to override material settings
-        // #define SKYBOX_SUNDISK SKYBOX_SUNDISK_SIMPLE
-
-        #ifndef SKYBOX_SUNDISK
-            #if defined(_SUNDISK_NONE)
-                #define SKYBOX_SUNDISK SKYBOX_SUNDISK_NONE
-            #elif defined(_SUNDISK_SIMPLE)
-                #define SKYBOX_SUNDISK SKYBOX_SUNDISK_SIMPLE
-            #else
-                #define SKYBOX_SUNDISK SKYBOX_SUNDISK_HQ
-            #endif
-        #endif
-
-        #ifndef SKYBOX_COLOR_IN_TARGET_COLOR_SPACE
-            #define SKYBOX_COLOR_IN_TARGET_COLOR_SPACE 0
-        #endif
-
-        // Calculates the Rayleigh phase function
         half getRayleighPhase(half eyeCos2)
         {
             return 0.75 + 0.75*eyeCos2;
@@ -135,6 +47,7 @@ SubShader {
         struct appdata_t
         {
             float4 vertex : POSITION;
+            float2 uv : TEXCOORD0;
             UNITY_VERTEX_INPUT_INSTANCE_ID
         };
 
@@ -142,38 +55,13 @@ SubShader {
         {
             float4  pos             : SV_POSITION;
 
-        //#if SKYBOX_SUNDISK == SKYBOX_SUNDISK_HQ
-            // for HQ sun disk, we need vertex itself to calculate ray-dir per-pixel
             half3   vertex          : TEXCOORD0;
- //       #elif SKYBOX_SUNDISK == SKYBOX_SUNDISK_SIMPLE
- //       #else
-            // as we dont need sun disk we need just rayDir.y (sky/ground threshold)
-//            half    skyGroundFactor : TEXCOORD0;
-//        #endif
 
-            // calculate sky colors in vprog
-            half3   groundColor     : TEXCOORD1;
-            half3   skyColor        : TEXCOORD2;
-
-        #if SKYBOX_SUNDISK != SKYBOX_SUNDISK_NONE
-            half3   sunColor        : TEXCOORD3;
-        #endif
+			float2 uv : TEXCOORD1;
 
             UNITY_VERTEX_OUTPUT_STEREO
         };
 
-
-        float scale(float inCos)
-        {
-            float x = 1.0 - inCos;
-        #if defined(SHADER_API_N3DS)
-            // The polynomial expansion here generates too many swizzle instructions for the 3DS vertex assembler
-            // Approximate by removing x^1 and x^2
-            return 0.25 * exp(-0.00287 + x*x*x*(-6.80 + x*5.25));
-        #else
-            return 0.25 * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
-        #endif
-        }
 
 float3	camera(float2 uv)
 {
@@ -185,143 +73,114 @@ float3	camera(float2 uv)
     return (normalize((uv.x) * right + (uv.y) * up + fov * forw));
 }
 
+	float4	_sam_ST;
+
         v2f vert (appdata_t v)
         {
             v2f OUT;
+
+            OUT.uv = TRANSFORM_TEX(v.uv, _sam);
+
             UNITY_SETUP_INSTANCE_ID(v);
             UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
             OUT.pos = UnityObjectToClipPos(v.vertex);
-
-            float3 kSkyTintInGammaSpace = COLOR_2_GAMMA(_SkyTint); // convert tint from Linear back to Gamma
-            float3 kScatteringWavelength = lerp (
-                kDefaultScatteringWavelength-kVariableRangeForScatteringWavelength,
-                kDefaultScatteringWavelength+kVariableRangeForScatteringWavelength,
-                half3(1,1,1) - kSkyTintInGammaSpace); // using Tint in sRGB gamma allows for more visually linear interpolation and to keep (.5) at (128, gray in sRGB) point
-            float3 kInvWavelength = 1.0 / pow(kScatteringWavelength, 4);
-
-            float kKrESun = kRAYLEIGH * kSUN_BRIGHTNESS;
-            float kKr4PI = kRAYLEIGH * 4.0 * 3.14159265;
-
-            float3 cameraPos = float3(0,kInnerRadius + kCameraHeight,0);    // The camera's current position
-
-            // Get the ray from the camera to the vertex and its length (which is the far point of the ray passing through the atmosphere)
-            float3 eyeRay = normalize(mul((float3x3)unity_ObjectToWorld, v.vertex.xyz));
-
+            OUT.vertex = v.vertex;
             float far = 0.0;
             half3 cIn, cOut;
-
-                // Sky
-                // Calculate the length of the "atmosphere"
-                far = sqrt(kOuterRadius2 + kInnerRadius2 * eyeRay.y * eyeRay.y - kInnerRadius2) - kInnerRadius * eyeRay.y;
-
-                float3 pos = cameraPos + far * eyeRay;
-
-                // Calculate the ray's starting position, then calculate its scattering offset
-                float height = kInnerRadius + kCameraHeight;
-                float depth = exp(kScaleOverScaleDepth * (-kCameraHeight));
-                float startAngle = dot(eyeRay, cameraPos) / height;
-                float startOffset = depth*scale(startAngle);
-
-
-
-			float2	dist = float2(0,0);
-			float3	tex = float3(1.,1.,1.)*tex2Dlod (_sam, float4(-normalize(eyeRay).xyz*3.+1.,.0));//tex2D(_sam, float2(0.,0.) ).xyz;
-			float	h = 0;
-
-float	id = 0.;
-			for(float i = -16.; i < 0; i++)
-			{
-				pos += startOffset*0. +0.*float3(cos(tex.x*1.+6.28*i/50.+_Time.x*.01), sin(tex.y*1.+6.28*i/50.+_Time.x*.01)*1., -sin(tex.z*1.+6.28*i/50.+_Time.x*.01+.5))*.51 
-				+ (eyeRay.xyz)*(dist.y*dist.x);
-
-				//pos = abs(pos)-5.5; // comment this line for best fog (it cost fps ... or not depending on the app mem left, I have a feeling something's leaking)
-				pos.zxy = frac(pos.zxy*.1)-.5;
-				pos *= 5.;
-				pos = abs(pos)-2.;
-				pos.zxy = frac(pos.yxz*.1)-.5;
-				pos *= 5.;
-				pos = abs(pos)-1.;
-				dist.x = length( ( ((pos-tex*1.1) ) )*1. )-.00001;//-5.1*tex.x;
-				dist.y += dist.x;
-				h += exp(-dist.y*.051)*5.51/(dist.y*.51+dist.x*dist.x+.001);
-				if ( abs(dist.x) < .1)
-				{
-			//		dist.y = 1e5;
-					break;
-				}
-				id++;
-			}
-
-
-			OUT.skyColor    = float4(0.,0.,0.,0.);
-//			dist = abs(dist);
-			OUT.skyColor = h*float4(.3+abs(sin(id+dist.y)), .5, .7, 1.)*.1-10.*float4(.2, .5, .7, 1.)*( 1.*dist.x-dist.y*.000001);//*.000041);
-//			OUT.skyColor/=20.;
-//			OUT.skyColor = -OUT.skyColor;
-//			OUT.skyColor *= (OUT.skyColor>= 2.?0.:1.);
-
-        #if defined(UNITY_COLORSPACE_GAMMA) && SKYBOX_COLOR_IN_TARGET_COLOR_SPACE
-            OUT.groundColor = sqrt(OUT.groundColor);
-            OUT.skyColor    = sqrt(OUT.skyColor);
-            #if SKYBOX_SUNDISK != SKYBOX_SUNDISK_NONE
-                OUT.sunColor= sqrt(OUT.sunColor);
-            #endif
-        #endif
 
             return OUT;
         }
 
+void rotate(inout float2 v, float angle)
+{
+	v = float2(cos(angle)*v.x+sin(angle)*v.y,-sin(angle)*v.x+cos(angle)*v.y);
+}
+
+
+float	my_rand(float3 id)
+{
+	float	ret;
+
+    return frac(sin(dot(id.xyz ,float3(12.9898,78.233, 42.424242))) * 43758.5453);
+
+
+	return ret;
+}
+
+float flare( float2 U )   // Fabrice                         // rotating hexagon 
+{	float2 A = sin(float2(0, 1.57) );
+    //U = abs( mul(mul(U , float2x2(A, -A.y, A.x) )),  float2x2(2,0,1,1.7)); 
+
+	U = abs(mul(mul(U, float2x2(A.x, A.y, -A.y, A.x) ), float2x2(2,0,1,1.7) ) );
+
+  //  return .2/max(U.x,U.y);                      // glowing-spiky approx of step(max,.2)
+
+  return .2*pow(max(U.x,U.y), -2.);
+ 
+}
+
+float	distfunc(float3 p)
+{
+	float	ret;
+
+//	p = abs(p);
+
+	ret = (length(p) );//max(max(abs(p.x),abs(p.y)),abs(p.z));
+
+float minl;
+float3	b = float3(.075, .075, .075);
+	minl = max(max(abs(p.x)+.5*abs(p.y)-b.x, abs(p.y)+.5*abs(p.z)-b.y), abs(p.z)+.5*abs(p.x)-b.z);
+ret = minl;
+	return ret;
+}
+
+
+        const float PI = 3.14159;
+
         half4 frag (v2f IN) : SV_Target
         {
             half3 col = half3(0.0, 0.0, 0.0);
+			float3 eyeRay = camera(IN.uv);//normalize(mul((float3x3)unity_ObjectToWorld, IN.pos.xyz));
 
-            // if we did precalculate color in vprog: just do lerp between them
-            col = IN.skyColor;//col = lerp(IN.skyColor, IN.groundColor, saturate(y));
-/*
-float3 pos = (UnityObjectToClipPos(IN.pos.xyz-0.));//eyeRay.z += 300.;eyeRay.x += 200;
-//IN.pos.xyz-200.;//normalize(UnityObjectToClipPos(IN.pos.xyz-0.));//normalize(mul((float3x3)UNITY_MATRIX_MVP, IN.pos.xyz-2000.));
-//		eyeRay = camera(eyeRay.xy);//normalize(mul((float3x3)unity_ObjectToWorld, v.vertex.xyz));
-float3	eyeRay = camera(pos.xy);
-				float height = kInnerRadius + kCameraHeight;
-                float depth = exp(kScaleOverScaleDepth * (-kCameraHeight));
-                float startAngle = dot(eyeRay, 1.+float3(0.,0.,0.) ) / height;
-                float startOffset = depth*scale(startAngle);
+float3	cameraPos = float3(0,0,0);
+float3	far = float3(0,0,0);
+float3	pos;
 
+                // Calculate the ray's starting position, then calculate its scattering offset
 
 
 			float2	dist = float2(0,0);
-			float3	tex = float3(1.,1.,1.)*tex2Dlod (_sam, float4(-normalize(eyeRay).xyz,.0));//tex2D(_sam, float2(0.,0.) ).xyz;
+			//float3	tex = float3(1.,1.,1.)*tex2Dlod (_sam, float4(-normalize(eyeRay).xyz*3.+1.,.0));//tex2D(_sam, float2(0.,0.) ).xyz;
 			float	h = 0;
-			float3	p;
-			for(float i = -150.; i < 0; i++)
-			{
-				p = 0.*startOffset*1.
-				 +0.*float3(cos(tex.x*1.+6.28*i/50.+_Time.x*.01*0.), sin(tex.y*1.+6.28*i/50.+_Time.x*.01*0.)*1., -sin(tex.z*1.+6.28*i/50.+_Time.x*.01*0.+.5))*.51
-				 + pos + normalize(eyeRay.xyz)*(dist.y);
-
-				//pos.z = frac(pos.z*30.)-.5;
-				//pos *= 30.;
-				dist.x = length( ( ((p-tex*0.1*0.) ) )*1. )-1.0;//-5.1*tex.x;
-//				dist.x = max(abs(dist.x), .002);
-				dist.y += dist.x;
-				h += .51/(dist.x*dist.x+0.*1.51);
-				if ((dist.x) < .1)
-				{
-					dist.y = 0.;
-//					dist.y = 1e3;
-					break;
-				}
-			}
-		col = h*float3(.3, .5, .7)*.1*0.+float3(.2, .5, .7)*( 1.*dist.x*.0000000051+0.*dist.y*.000041);
-*/
-
-//		col.x += step(1000.1+_Time.x*400.1, length(eyeRay*5.)-1.)*step(length(eyeRay*5.)-1., 1100.+_Time.x*40.1);
-//		col.y += step(1000.1+_Time.x*400.1, length(eyeRay.xz*5.)-1.)*step(length(eyeRay.xz*5.)-1., 1100.1+_Time.x*400.1);
+float	g = 0.;
+float	id = 0.;
+float3	col_o;
 
 
-        #if defined(UNITY_COLORSPACE_GAMMA) && !SKYBOX_COLOR_IN_TARGET_COLOR_SPACE
-            col = LINEAR_2_OUTPUT(col);
-        #endif
+			col    = float4(0.,0.,0.,0.);
+//			dist = abs(dist);
+			col = 1.*h*float4(.3+abs(sin(id+dist.x*0.)), .5, .7, 1.)*.1*0.+1.*float4(.2, .5, .7, 1.)*id/50.;//*( 1.*dist.x*.1+dist.y*.1*0.);//*.000041);
+
+//			col = _intensity*h*float3(abs(sin(_Time.x+1.04+g)), abs(sin(_Time.x+2.09+g)), abs(sin(_Time.x+3.14+g)))*dist.y;
+
+			float2	u = IN.uv;
+
+
+//			return half4(normalize(IN.vertex) * .5 + .5, 1);
+
+float3 n = normalize(IN.vertex) * .5 + .5;//normalize(IN.vertex);
+//float r = atan2(n.x, n.z) / (2*PI) + 0.5;
+//float v = n.y * 0.5 + 0.5;
+
+//			return half4(r, v, 1, 1);
+			float3	idd = floor(n*_intensity);
+			n = frac(n*_intensity)-.5;
+			float	randomed= my_rand(idd+_var);
+			float	dst = 10.*(.25-.97*randomed-distfunc(n) );
+			col_o.x = dst //+.1/(dst*dst+.1)
+			*1.;
+			col_o.xyz = col_o.xxx * float3(.85+.5*abs(sin(randomed*PI*2.+1.04)), .85+.5*abs(sin(randomed*PI*2.+0.0) ), .85+.5*abs(sin(randomed*PI*2.+2.08)) );
+			col = col_o;//+flare(n.xyz);
 
             return half4(col,1.0);
 
