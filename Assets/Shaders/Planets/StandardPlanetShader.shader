@@ -2,7 +2,8 @@
 {
 	Properties
 	{
-		_MainTex ("Texture", 2D) = "white" {}
+		_PlanetSize ("Planet size", Float) = 1
+		_PlanetHole ("Planet Hole", Vector) = (.1, .1, .1)
 	}
 	SubShader
 	{
@@ -18,19 +19,22 @@
 
 		#include "PlanetShader.cginc"
 
-		#pragma surface planetSurface Standard vertex:vert nofog
+		#pragma surface planetSurfaceFunc Standard vertex:vertFunc nofog alpha
 
-		StandardPlanetSurface	planetSurface(StandardPlanetInput spi)
+		StandardPlanetSurface	planetSurface(inout StandardPlanetInput spi)
 		{
 			StandardPlanetSurface	spo;
 
+			spo.color = float4(1, 1, 0, 1);
 
 			return spo;
 		}
 
-		StandardPlanetSurface	planetUnderground(StandardPlanetInput spi)
+		StandardPlanetSurface	planetUnderground(inout StandardPlanetInput spi)
 		{
 			StandardPlanetSurface	spu;
+			
+			spu.color = float4(0, 1, 1, 1);
 
 			return spu;
 		}
