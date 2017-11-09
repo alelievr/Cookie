@@ -12,7 +12,7 @@
 		Tags { "RenderType"="Transparent" "Queue"="Transparent" }
 		LOD 100
 
-		Cull Back
+		Cull Front
 
 		Blend SrcAlpha OneMinusSrcAlpha		
 	

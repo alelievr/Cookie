@@ -70,7 +70,7 @@ void	vertFunc(inout PlanetAppdata v, out Input o)
 	o.position = mul(v.vertex + _ObjectCenter, unity_ObjectToWorld).xyz;//mul((float4x4)unity_ObjectToWorld, v.vertex);//v.vertex.xyz;//mul(v.vertex.xyz, (float3x3)unity_WorldToObject);
 		float3 cam = _WorldSpaceCameraPos;//-o.position;
 //cam.xz = mul(float2x2(cos(_Time.x*50.), sin(_Time.x*50.), -sin(_Time.x*50.), cos(_Time.x*50.) ), cam.xz);
-	o.org = cam - _ObjectCenter+o.position;
+	o.org = cam - _ObjectCenter;//+o.position;
 	o.normal = v.normal;
 }
 
