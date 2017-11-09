@@ -4,14 +4,15 @@
 	{
 		_PlanetSize ("Planet size", Float) = 1
 		_PlanetHole ("Planet Hole", Vector) = (.1, .1, .1)
+		_Rotation ("Rotation", Vector) = (0, 0, 0)
+		[HideInInspector]_ObjectCenter ("Object Center", Vector) = (0, 0, 0)
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Transparent" "RenderQueue"="Transparent" }
+		Tags { "RenderType"="Transparent" "Queue"="Transparent" }
 		LOD 100
 
-		ZWrite Off
-		Cull Front
+		Cull Back
 
 		Blend SrcAlpha OneMinusSrcAlpha		
 	
