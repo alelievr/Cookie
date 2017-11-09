@@ -62,12 +62,12 @@ float2 modA (float2 p, float count) {
     a = fmod(a, an)-an*.5;
     return float2(cos(a),sin(a))*length(p);
 }
-float	neo, h, accum, trinity;
+float	neo, h, accum, trinity, rabbit;
 float	col_id;
 float4	frag(v2f f) : SV_TARGET
 {
 	col_id = 0.;
-	neo = 0.;h = 0.;accum = 0.;trinity = 0.;
+	neo = 0.;h = 0.;accum = 0.;trinity = 0.;rabbit = 0.;
     t = _Time.x;
     float3	col = float3(0., 0., 0.);
 	float2	uv  = float2(f.texcoord.x, f.texcoord.y);
@@ -94,12 +94,18 @@ float4	frag(v2f f) : SV_TARGET
     float4	c_out =  float4(col,1.0)*1.;
     c_out.xyz += neo * float3(.7, .6, .3);
     if (col_id == 2.)
+    {
     	c_out.xyz += (1.-inter.w*.051)*float3(.3,.4,.7);
+
+    }
     if (col_id == 1.)
+    {
     	c_out.xyz += (1.-inter.w*.051)*float3(.38,.75,.5);
+    	    	c_out.xyz += rabbit*.00001*float3(1., .4, .5);
+    }
 //    if (col_id == 0.)
     	c_out.xyz += (inter.x*.0051)*float3(.5,.3,.25)*h;
-    c_out.xyz += .0051*trinity*float3(.2, .150, .950);
+c_out.xyz += .0051*trinity*float3(.2, .150, .950);
     	c_out.xyz *= accum;
    //c_out.x += step(uv.x, .502)*step(.5, uv.x);
 
@@ -215,6 +221,8 @@ minc = min(minc, (length(frac(p.yz*(3.+ 7.*fmod(-id.x*10., 70.)/70. ) )-.5)-.250
 minc = min(minc, (length(frac(p.zx*(3.+ 7.*fmod(-id.y*10., 70.)/70. ) )-.5)-.2501) );
 //minf = max(minf, -minc);
  trinity = .51/(.0+minc*minc);
+ minc = max(minc, - minf);
+ rabbit += .0051/(.0000001+minc*minc);
 //max(abs(p.x), max(abs(p.y), abs(p.z)))-.0125-.07*(sin(abs(lerp(id.y,id.x,.5+.5*sin(id.z*.1)))*30.14));
 //neo -= .002/(ming*ming+1.2);
 ming = max(minf, -outer);
