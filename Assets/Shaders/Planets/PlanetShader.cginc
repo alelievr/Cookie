@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
-#pragma vertex vert
+﻿#pragma vertex vert
 #pragma fragment frag
 // make fog work
 #pragma multi_compile_fog
@@ -11,6 +9,7 @@ float	_PlanetSize;
 float4	_PlanetHole;
 float4 	_ObjectCenter;
 float4 	_Rotation;
+float4	_LocalScale;
 
 struct appdata
 {
@@ -67,8 +66,8 @@ StandardPlanetSurface planetUnderground(inout StandardPlanetInput spi);
 void	vertFunc(inout PlanetAppdata v, out Input o)
 {
 	UNITY_INITIALIZE_OUTPUT(Input, o);
-	o.position = mul(v.vertex + _ObjectCenter, unity_ObjectToWorld).xyz;//mul((float4x4)unity_ObjectToWorld, v.vertex);//v.vertex.xyz;//mul(v.vertex.xyz, (float3x3)unity_WorldToObject);
-		float3 cam = _WorldSpaceCameraPos;//-o.position;
+	o.position = mul(v.vertex + _ObjectCenter / _LocalScale.xyz, unity_ObjectToWorld).xyz;//mul((float4x4)unity_ObjectToWorld, v.vertex);//v.vertex.xyz;//mul(v.vertex.xyz, (float3x3)unity_WorldToObject);
+	float3 cam = _WorldSpaceCameraPos;//-o.position;
 //cam.xz = mul(float2x2(cos(_Time.x*50.), sin(_Time.x*50.), -sin(_Time.x*50.), cos(_Time.x*50.) ), cam.xz);
 	o.org = cam - _ObjectCenter;//+o.position;
 	o.normal = v.normal;
@@ -86,6 +85,7 @@ float	sdcyl(float3 p)
 
 float	planetDE(float3 p, out bool inside)
 {
+	p /= 5;
 	float	s = sdSphere(p);
 	float	t = sdcyl(p);
 
@@ -95,8 +95,8 @@ float	planetDE(float3 p, out bool inside)
 	return min(s, t);
 }
 
-#define MAX_PLANET_ITER		100
-#define SURFACE_MIN			0.01f
+#define MAX_PLANET_ITER		50
+#define SURFACE_MIN			0.1f
 
 void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
 {
@@ -107,7 +107,7 @@ void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
 
 	// o.Albedo = float3(0, 0, 0);
 	o.Emission = float3(input.position);
-	o.Alpha = 1;
+	o.Alpha = .2;
 
 	// return ;
 
@@ -118,7 +118,7 @@ void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
 	{
 		float3 p = spi.org + spi.dir * spi.length;
 		surfDist = planetDE(p, inside);
-		spi.length += surfDist / 2;
+		spi.length += surfDist / 1;
 
 		if (surfDist < SURFACE_MIN)
 			break ;

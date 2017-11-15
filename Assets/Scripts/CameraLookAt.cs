@@ -5,6 +5,8 @@ using UnityEngine;
 public class CameraLookAt : MonoBehaviour {
 
 	public GameObject	lookat;
+	public float		yOffset = 0;
+	public float		yLookAtOffset = 0;
 	public float		speed = 1;
 
 	float length;
@@ -17,9 +19,11 @@ public class CameraLookAt : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 		
+		lookat.transform.position += Vector3.up * yLookAtOffset;
 		transform.LookAt(lookat.transform);
+		lookat.transform.position -= Vector3.up * yLookAtOffset;
 
-		transform.position = lookat.transform.position + new Vector3(Mathf.Sin(Time.time * speed), 0, Mathf.Cos(Time.time * speed)) * length;
+		transform.position = lookat.transform.position + new Vector3(Mathf.Sin(Time.time * speed), yOffset, Mathf.Cos(Time.time * speed)) * length;
 
 	}
 }

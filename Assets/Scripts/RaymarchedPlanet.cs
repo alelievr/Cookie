@@ -15,5 +15,6 @@ public class RaymarchedPlanet : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		material.SetVector("_ObjectCenter", transform.position);
+		material.SetVector("_LocalScale", transform.localScale);
 	}
 }
