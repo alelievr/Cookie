@@ -9,7 +9,9 @@ Properties {
 
 SubShader {
     Tags { "Queue"="Background" "RenderType"="Background" "PreviewType"="Skybox" }
-    Cull Off ZWrite Off
+    Cull Off
+    ZWrite Off
+    Fog { Mode Off }
 
     Pass {
 
@@ -18,16 +20,10 @@ SubShader {
         #pragma fragment frag
 
         #include "UnityCG.cginc"
-        #include "Lighting.cginc"
 
         #pragma multi_compile _SUNDISK_NONE _SUNDISK_SIMPLE _SUNDISK_HIGH_QUALITY
 
-        uniform half _Exposure;     // HDR exposure
-        uniform half3 _GroundColor;
-        uniform half _SunSize;
-        uniform half _SunSizeConvergence;
-        uniform half3 _SkyTint;
-        uniform half _AtmosphereThickness;
+        #pragma fragmentoption ARB_precision_hint_fastest
 
 		sampler2D	_sam;
 		float		_var;
@@ -42,7 +38,6 @@ SubShader {
             half eyeCos = dot(light, ray);
             return getRayleighPhase(eyeCos * eyeCos);
         }
-
 
         struct appdata_t
         {
@@ -137,7 +132,7 @@ float3	b = float3(.075, .075, .075);
 
         const float PI = 3.14159;
 
-        half4 frag (v2f IN) : SV_Target
+        half4 frag (v2f IN) : COLOR
         {
             half3 col = half3(0.0, 0.0, 0.0);
 			float3 eyeRay = camera(IN.uv);//normalize(mul((float3x3)unity_ObjectToWorld, IN.pos.xyz));
@@ -189,7 +184,8 @@ float3 d = (IN.vertex) * .5;// + .5;//normalize(IN.vertex);
             }
 			col = col_o;//+flare(n.xyz);
 
-            return half4(col,1.0);
+            //DO NOT return negative values !
+            return half4(max(float3(0, 0, 0), col),1.0);
 
         }
         ENDCG

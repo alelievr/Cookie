@@ -6,13 +6,14 @@
 		_PlanetHole ("Planet Hole", Vector) = (.1, .1, .1)
 		_Rotation ("Rotation", Vector) = (0, 0, 0)
 		[HideInInspector]_ObjectCenter ("Object Center", Vector) = (0, 0, 0)
+		[HideInInspector]_LocalScale ("Local scale", Vector) = (1, 1, 1, 1)
 	}
 	SubShader
 	{
 		Tags { "RenderType"="Transparent" "Queue"="Transparent" }
 		LOD 100
 
-		Cull Back
+		Cull Front
 
 		Blend SrcAlpha OneMinusSrcAlpha		
 	
