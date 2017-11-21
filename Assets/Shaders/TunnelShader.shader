@@ -45,7 +45,7 @@ Shader "Cookie/TunnelShader"
 float 	t;
 
 #define I_MAX		100
-#define E			0.001
+#define E			0.01
 
 float4	march(float3 pos, float3 dir);
 float3	camera(float2 uv);
@@ -53,15 +53,6 @@ float3	calcNormal(in float3 pos, float e, float3 dir);
 float3	color_func(float3 pos, float3 dir);
 void	rotate(inout float2 v, float angle);
 
-#define PI 3.14159
-#define TAU PI*2.
-
-float2 modA (float2 p, float count) {
-    float an = TAU/count;
-    float a = atan2(p.y,p.x)+an*.5;
-    a = fmod(a, an)-an*.5;
-    return float2(cos(a),sin(a))*length(p);
-}
 float	neo, h, accum, trinity, rabbit;
 float	col_id;
 float4	frag(v2f f) : SV_TARGET
@@ -70,8 +61,8 @@ float4	frag(v2f f) : SV_TARGET
 	neo = 0.;h = 0.;accum = 0.;trinity = 0.;rabbit = 0.;
     t = _Time.x;
     float3	col = float3(0., 0., 0.);
-	float2	uv  = float2(f.texcoord.x, f.texcoord.y);
-	float3	dir = camera(uv-.5);
+	float2	uv  = float2(f.texcoord.x, f.texcoord.y)-.5;
+	float3	dir = camera(uv);
 	//float3	dir = camera(modA(uv-.5, 5.)-.2*float2(cos(length(uv.xy-.5)), sin(length(uv.xy-.5) )));
     float3	pos = float3(.0, .0, 20.0);
 //	float3	b = float3(.85, .3, .3);
@@ -108,7 +99,8 @@ float4	frag(v2f f) : SV_TARGET
 c_out.xyz += .0051*trinity*float3(.2, .150, .950);
     	c_out.xyz *= accum;
    //c_out.x += step(uv.x, .502)*step(.5, uv.x);
-
+c_out.zyx *= 1.-1.5*length(uv);
+c_out.w = 0.;
     return	c_out;
 }
 
@@ -181,10 +173,6 @@ float sdTorus( float3 p, float2 t )
     return length(q)-t.y;
 }
 
-#define PHI 1.6180339887
-#define INV_PHI 0.6180339887
-
-
 float	scene(float3 p)
 {
 	float	minf = 1e5;
@@ -206,19 +194,11 @@ float	scene(float3 p)
 	p.xy -= float2(cos(id.z*0.+fmod(s*1000., 10000.)/(.1+mins*mins)+_Time.x*1.),sin(id.z*0.+fmod(s*1000., 10000.)/(.1+mins*mins)+_Time.x*1.))*.02512;
 	id.xy = floor(p.xy * 10.);
 	p.xy  = frac(p.xy*(7.5+fmod(id.z, 2.5) ))-.5;
-//	p.xy = modA(p.xy, 5.);
-//	p.x -= .2;
 
-//		dst[0] = icosahedron(p, .1);//-.1251;
-//		dst[1] = max(abs(p.x), max(abs(p.y), abs(p.z)))-.125;
-		//dst[2] = tetrahedron(p, .1);
-//		ming = dst[int(abs(floor(fmod(id.z, 2.)) ))];
-//ming = max(abs(p.x), max(abs(p.y), abs(p.z)))-.00;//-.0125-.07*abs(sin(id.z*3.14/10.));;
-//neo += .0002/(ming * ming+.0);
 minf = max(abs(p.x), max(abs(p.y), abs(p.z)))-.0125-.17*abs(sin(s*.125+.0*id.z));//*(sin( (lerp(id.y,id.x,.5+.5*sin(id.z*10000.1)))*30.14));
 minc = min(minc, (length(frac(p.xy*(3.+ 7.*fmod(-id.z*10., 70.)/70. ) )-.5)-.2501) );
-minc = min(minc, (length(frac(p.yz*(3.+ 7.*fmod(-id.x*10., 70.)/70. ) )-.5)-.2501) );
-minc = min(minc, (length(frac(p.zx*(3.+ 7.*fmod(-id.y*10., 70.)/70. ) )-.5)-.2501) );
+minc = min(minc, (length(frac(p.yz*(3.+ 7.*fmod(+id.x*10., 70.)/70. ) )-.5)-.2501) );
+minc = min(minc, (length(frac(p.zx*(3.+ 7.*fmod(+id.y*10., 70.)/70. ) )-.5)-.2501) );
 //minf = max(minf, -minc);
  trinity = .51/(.0+minc*minc);
  minc = max(minc, - minf);
@@ -244,18 +224,18 @@ float4	march(float3 pos, float3 dir)
     float4	step = float4(0.0, 0.0, 0.0, 0.0);
 	float3	dirr;
 	float	dynamiceps = E;
-    for (int i = -1; i < I_MAX; ++i)
+    for (int i = 1; i < I_MAX; ++i)
     {
         dirr = dir;
         //rotate(dirr.xy, .51*dist.y-t*2.1);
         rotate(dirr.xy, .51*dist.y*0.-.001*floor(t*2000.1-dist.y*300.)) ;
     	p = pos + dirr * dist.y;
         //p.z -=20.;
-        dynamiceps = -dist.x+(dist.y)/(150.);
+        dynamiceps = -dist.x+(dist.y)/(50.);
         dist.x = scene(p);
-        dist.y += dist.x*.3;//dist.x*1.3/(dist.y*1.1+.2);//*.3;
+        dist.y += dist.x*.3;//*1.*exp(0.-dist.y);//dist.x*1.3/(dist.y*1.1+.2);//*.3;
         accum += .01;
-        if (log((dist.y*dist.y/dist.x)/1e5)>0. || abs(dist.x) < dynamiceps)// || dist.y > 20.)
+        if (log((dist.y*dist.y/dist.x)/1e5)>0. || (dist.x) < dynamiceps)// || dist.y > 20.)
         {
 //            step.y = 1.;
 //            if (dist.y < 4.)

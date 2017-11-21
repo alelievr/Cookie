@@ -125,12 +125,12 @@ float	distfunc(float3 p)
 
 //	p = abs(p);
 
-	ret = (length(p) );//max(max(abs(p.x),abs(p.y)),abs(p.z));
+	ret = (length(p) )+.051;//max(max(abs(p.x),abs(p.y)),abs(p.z));
 
 float minl;
 float3	b = float3(.075, .075, .075);
-	minl = max(max(abs(p.x)+.5*abs(p.y)-b.x, abs(p.y)+.5*abs(p.z)-b.y), abs(p.z)+.5*abs(p.x)-b.z);
-ret = minl;
+//	minl = max(max(abs(p.x)+.5*abs(p.y)-b.x, abs(p.y)+.5*abs(p.z)-b.y), abs(p.z)+.5*abs(p.x)-b.z);
+//ret = minl;
 	return ret;
 }
 
@@ -159,7 +159,7 @@ float3	col_o;
 
 			col    = float4(0.,0.,0.,0.);
 //			dist = abs(dist);
-			col = 1.*h*float4(.3+abs(sin(id+dist.x*0.)), .5, .7, 1.)*.1*0.+1.*float4(.2, .5, .7, 1.)*id/50.;//*( 1.*dist.x*.1+dist.y*.1*0.);//*.000041);
+//			col = 1.*h*float4(.3+abs(sin(id+dist.x*0.)), .5, .7, 1.)*.1*0.+1.*float4(.2, .5, .7, 1.)*id/50.;//*( 1.*dist.x*.1+dist.y*.1*0.);//*.000041);
 
 //			col = _intensity*h*float3(abs(sin(_Time.x+1.04+g)), abs(sin(_Time.x+2.09+g)), abs(sin(_Time.x+3.14+g)))*dist.y;
 
@@ -168,18 +168,25 @@ float3	col_o;
 
 //			return half4(normalize(IN.vertex) * .5 + .5, 1);
 
-float3 n = normalize(IN.vertex) * .5 + .5;//normalize(IN.vertex);
+float3 d = (IN.vertex) * .5;// + .5;//normalize(IN.vertex);
 //float r = atan2(n.x, n.z) / (2*PI) + 0.5;
 //float v = n.y * 0.5 + 0.5;
 
 //			return half4(r, v, 1, 1);
-			float3	idd = floor(n*_intensity);
-			n = frac(n*_intensity)-.5;
+			float3	idd = floor(d*_intensity);
+			float3   n = frac(d*_intensity)-.5;
 			float	randomed= my_rand(idd+_var);
-			float	dst = 10.*(.25-.97*randomed-distfunc(n) );
+			float	dst = 10.*(.25-distfunc(n-.97*randomed)-.97*randomed );
 			col_o.x = dst //+.1/(dst*dst+.1)
 			*1.;
 			col_o.xyz = col_o.xxx * float3(.85+.5*abs(sin(randomed*PI*2.+1.04)), .85+.5*abs(sin(randomed*PI*2.+0.0) ), .85+.5*abs(sin(randomed*PI*2.+2.08)) );
+  //          float3 on = n;
+            for(float i = 0.; i < 2.; i++)
+            {
+//                n += -on*.01;
+//                col_o.x += length(n)/1.;
+//                col_o.x += .1/length(n*n*1.0);
+            }
 			col = col_o;//+flare(n.xyz);
 
             return half4(col,1.0);

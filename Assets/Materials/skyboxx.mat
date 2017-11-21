@@ -85,8 +85,8 @@ Material:
     - _SunSizeConvergence: 6.02
     - _UVSec: 0
     - _ZWrite: 1
-    - _intensity: 140.05
-    - _var: -15.5
+    - _intensity: 86.1
+    - _var: 4.6
     m_Colors:
     - _Color: {r: 0, g: 0.6946754, b: 0.97794116, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
