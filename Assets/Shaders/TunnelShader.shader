@@ -100,7 +100,7 @@ c_out.xyz += .0051*trinity*float3(.2, .150, .950);
     	c_out.xyz *= accum;
    //c_out.x += step(uv.x, .502)*step(.5, uv.x);
 c_out.zyx *= 1.-1.5*length(uv);
-c_out.w = 0.;
+// c_out.w = 0.;
     return	c_out;
 }
 
