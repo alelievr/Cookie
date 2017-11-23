@@ -3,8 +3,9 @@
 	Properties
 	{
 		_Volume ("Volume", 3D) = "" {}
-		_Offset ("Offset", float) = 1
+		_Offset ("Offset", Vector) = (0,0,0,0)
 		_Zoom ("Zoom", float) = 1
+		_Alpha ("alpha", float) = 1
 	}
 	SubShader
 	{
@@ -35,8 +36,9 @@
 			};
 			
 			sampler3D		_Volume;
-			float			_Offset;
+			float4			_Offset;
 			float			_Zoom;
+			float			_Alpha;
 			
 			ps_input vert (vs_input v)
 			{
@@ -48,8 +50,12 @@
 			
 			float4 frag (ps_input i) : COLOR
 			{
+				float3 uv = i.uv * _Zoom+_Offset.xyz;
 				// return tex3D (_Volume, i.uv);
-				return float4(tex3D (_Volume, i.uv * _Zoom).aaaa);
+				if (_Alpha > .1f)
+					return float4(1, 1, 1, tex3D(_Volume, uv).a);
+				else
+					return float4(tex3D (_Volume, uv).aaaa);
 			}
 
 			ENDCG

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 [RequireComponent(typeof(ParticleSystem))]
 public class PlexusParticle : MonoBehaviour
@@ -44,6 +45,8 @@ public class PlexusParticle : MonoBehaviour
 		float maxDistanceSqrt = maxDistance  * maxDistance;
 
 		int	lineRendererCout = lineRenderers.Count;
+
+		Profiler.BeginSample("Plexus calcul");
 
 		for (int i = 0; i < particleCount; i++)
 		{
@@ -93,6 +96,8 @@ public class PlexusParticle : MonoBehaviour
 
 		for (int i = lrIndex; i < lineRenderers.Count; i++)
 			lineRenderers[i].enabled = false;
+
+		Profiler.EndSample();
 
 	}
 }

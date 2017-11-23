@@ -55,7 +55,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Volume:
-        m_Texture: {fileID: 11700000, guid: c19afb49ee92e4ea0b3426a54a2ef5d4, type: 2}
+        m_Texture: {fileID: 11700000, guid: 71f96ca67f12e400c9f54814d8504984, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -71,8 +71,8 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Param: -0.04
-    - _Phase: 4.33346
+    - _Param: -0.02
+    - _Phase: 8.176934
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -81,7 +81,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LocalScale: {r: 10, g: 10, b: 10, a: 0}
-    - _ObjectCenter: {r: 0, g: 0, b: 0, a: 0}
+    - _LocalScale: {r: 19.46, g: 18.17, b: 15.77, a: 0}
+    - _ObjectCenter: {r: 6.14, g: 0, b: 0, a: 0}
     - _Offset: {r: 0.71, g: 0.59, b: 0.52, a: 0}
-    - _OffsetObj: {r: 0.27, g: 0, b: 0.16, a: 0}
+    - _OffsetObj: {r: -131.86, g: -5.82, b: -13.42, a: 0}
