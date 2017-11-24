@@ -164,7 +164,7 @@ float3 computeColour( float density, float radius )
     
     // colour based on density alone. gives impression of occlusion within
     // the media
-    float3 result = lerp( 1.1*float3(1.0,0.9,0.8), float3(0.4,0.15,1.1), density );
+    float3 result = lerp( 1.1*float3(.0,0.,0.8), float3(0.4,0.15,.1), density );
     
     // colour added for nebula
     float3 colBottom = 3.1*float3(0.8,1.0,1.0);
@@ -189,9 +189,12 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
     float l = length(p-0.5);//-0.5;
     float mouseIn = 0.75;
     float mouseY = 1.0 - mouseIn;
-    float den = 5.*tex3D(_Volume, p-1*float3(-_Phase*.1, .0, .0)).w +0- .85*r;// - 1.5*r*(4.*mouseY+.5);
+    float den = 5.*tex3D(_Volume, p-0*1*float3(-_Phase*.1, .0, .0)).w +0- .85*r;// - 1.5*r*(4.*mouseY+.5);
 
-	den = den * exp(1/r);
+	// den = den*.5+ .25 * den * exp(1/r);
+
+	den = den * exp(1/(r*r));
+	// den = den * exp(1/(abs(r)-.1));
 
     // float den = 5.*Map(p-1*float3(-_Phase*.1, .0, .0)) - .25*r;
     // offset noise based on seed
@@ -231,7 +234,7 @@ float	di(float3 p)
 	return ret;
 }
 
-		#define MAXSTEPS	60.
+		#define MAXSTEPS	100.
             float4 frag (v2f i) : SV_Target
             {
 				expCenter = _expCenter.xyz;
@@ -271,6 +274,7 @@ float	di(float3 p)
 				Transmittance = e ^ (-t * d).
 				
 				*/
+				float3	h = 0;
 				float4	s = 0;
 				float	dbg = 0;
 				// P += -1*float3(-_Phase*3.1, .0, .0);
@@ -278,7 +282,7 @@ float	di(float3 p)
 				{
 					if (s.a > .99)
 						continue;
-					float	rad = di(frac(.1*(P - expCenter - 1*float3(-_Phase*.1, .0, .0)*1 ))-.5)-.125;
+					float	rad = di(frac(.051*(P - expCenter - 1*float3(-_Phase*3., .0, .0)*1 ))-.5)-.125;
 //s.argb += .1/(rad*rad);
 //break;
 					// if (rad > expRadius + .01) // always true
@@ -289,29 +293,38 @@ float	di(float3 p)
 					dens = densityFn((P-_OffsetObj)*_Param, rad, rawDens, s.a);
 
 					C = float4(computeColour(dens, rad), dens);
-					//C = (dens)+C*dens;//float4(computeColour(dens, rad), dens);
+					// C = abs(dens)-.5*C*dens;//float4(computeColour(dens, rad), dens);
 					//C.rgb = lerp(float3(.5,.2,.3), float3(.28, .3, .5), dens);
 					C.a *= _AlphaDecay;//.2;
 					C.rgb *= C.a;
 					s = s + C*(1.-s.a);
 // C+=.051;
-					// P += vstep;
+					P += vstep;// - dens*.1*vstep;
 
 
 					// dark debug magic
-//					PP = eyeray.o + (eyeray.d+noise((P-_OffsetObj)*_Param)) * dist.y;
+					PP = eyeray.o + (eyeray.d+noise((P-_OffsetObj)*_Param)) * dist.y;
 //					s = distfunc(P-1*float3(-_Phase*3.1, .0, .0));
 					//s.w = clamp(s.w, 0., 60.);
 					// C = s.a * s + (1. - s.a) * C;
 
-//					float	light = length(PP)-.5;
-//					dist.x = light;
-//					dist.y += dist.x;
+					float	light = length(PP)-.15;
+					dist.x = light;
+					dist.y += dist.x;
+					if (s.a > 0. )
+					h += 
+					// dens
+					// *
+					0*
+					(.1/(light*light+.1))
+					*
+					float3(.1, .5, .2)
+					;
 
 					// if (s.a > 0. )
 						// C += .0051/(light*light*.0006251+.1)*float4(0., .01, 1.4, 1.);
 					// C += .01/(s*s+0.)*float4(.6, .5, .55, 1.);
-					P += vstep; // /(i*.01+1);
+					// P += vstep; // /(i*.01+1);
 					//  C += float4((.6+float3(.6,.5,.4)*(exp(-s.w*10.)-s.w)),1)*s.w*(1.-C.a);
 					// if (C.a>.99) break;
 //					C += s*2.;//*float4(.50, .20, 1., 1);
@@ -319,7 +332,12 @@ float	di(float3 p)
 					dbg++;
 				}
 				C = s*1.;
-				C*0.5 + 0.5*C*C*(3.0-2.0*C);
+				C = C*C*(3.0-2.0*C);
+				C = C*C*(3.0-2.0*C);
+				C = C*C*(3.0-2.0*C);
+
+				C.xyz += h;
+
 				//return float4(1, 1,1, dbg / 500. );
 //				C *= .5/exp(-length(P-pnear)*s.w);
 				//C = s;
