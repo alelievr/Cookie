@@ -122,13 +122,13 @@ out float tfar)
 
 	float Map(float3 Position)
 	{
-		Position += float3(0, _Phase*Speed*.1, 0);
+		//Position += float3(0, _Phase*Speed*.1, 0);
 	    float3 P = (Position+1.*tex3D(_Volume,Position*2.+_Phase*Speed*.2).www*.02);
 		// float3 P = Position + float3(0, _Phase, 0);
 
-	    float C = tex3D(_Volume,P).w * 60.;
+	    float C = tex3D(_Volume,P).w;
 	    // C *= 5.*tex3D(_Volume,P*float3(.5,1,.5)).w;
-	    	C = C*.9+.1*pow(tex3D(_Volume,P*5.1).w,2.)*5.;
+	    	C = C*.9+.1*pow(tex3D(_Volume,P*5.1).w,2.);
 		// return tex3D(_Volume, Position ).w;
 		// was C-.3
 	    return max((C-.3)*sqrt((Position.z-.1)/.3),0.)/.5;
@@ -179,14 +179,21 @@ float3 computeColour( float density, float radius )
 // maps 3d position to colour and density
 float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
 {
+	// p = -.90*p;///dot(p,p);
+	// float2	q;
+	// q.x = length(p.xz-expCenter.xz)-.51;
+	// q.y = p.y-expCenter.y;
+	// r = length(q) -.5;
+//	p.x += .1*cos(_Phase+p.y);
+//	p.z += .1*sin(_Phase+p.y);
     float l = length(p-0.5);//-0.5;
     float mouseIn = 0.75;
     float mouseY = 1.0 - mouseIn;
-    float den = 5.*tex3D(_Volume, p-1*float3(-_Phase*.1, .0, .0)).w - .25*r;// - 1.5*r*(4.*mouseY+.5);
-    
+    float den = 5.*tex3D(_Volume, p-1*float3(-_Phase*.1, .0, .0)).w +0- .25*r;// - 1.5*r*(4.*mouseY+.5);
+    // float den = 5.*Map(p-1*float3(-_Phase*.1, .0, .0)) - .25*r;
     // offset noise based on seed
-    float t = .1;
-    float3 dir = float3(1.,1.,1.);
+    // float t = .1;
+    // float3 dir = float3(1.,1.,1.);
     
     // participating media    
 	/*
@@ -212,11 +219,20 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
     return den;
 }
 
+float	di(float3 p)
+{
+	float	ret = 1e5;
+
+	ret = length(p.xyz);
+
+	return ret;
+}
+
 		#define MAXSTEPS	60.
             float4 frag (v2f i) : SV_Target
             {
 				expCenter = _expCenter.xyz;
-				//return tex3D(_Volume, i.uv ).wwww; // all is in alpha ... I'm stupid
+				// return tex3D(_Volume, (i.uv-_OffsetObj)*_Param ).wwww*10.; // all is in alpha ... I'm stupid
 				//return float4(i.uv, 1);
 				//return float4(_Phase, 0,0, 1.);
                 float4 Color = float4(0.,0.,0.,1.);//tex3D(_Volume, i.uv);
@@ -228,7 +244,7 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
 				eyeray.d = normalize(i.position - _WorldSpaceCameraPos.xyz );
 //				return float4(eyeray.d*.00001, 1.);
 				float	tnear, tfar;
-				bool hit = IntersectBox(eyeray, float3(-3,-3,-3)*2., 2.*float3(3,3,3), tnear, tfar );
+				bool hit = IntersectBox(eyeray, float3(-3,-3,-3)*3., 3.*float3(3,3,3), tnear, tfar );
 				if (!hit)
 					return float4(0,0,0,0);
 					// LUL //discard; // much instructions such wow !!
@@ -259,21 +275,23 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
 				{
 					if (s.a > .99)
 						continue;
-					float	rad = length(P - expCenter)-.5;
-
-//					if (rad > expRadius + .01) // always true
-//						continue;
+					float	rad = di(frac(.1*(P - expCenter - 1*float3(-_Phase*.1, .0, .0)*1 ))-.5)-.125;
+//s.argb += .1/(rad*rad);
+//break;
+					// if (rad > expRadius + .01) // always true
+						// continue;
 
 					float	dens, rawDens;
 
 					dens = densityFn((P-_OffsetObj)*_Param, rad, rawDens, s.a);
 
 					C = float4(computeColour(dens, rad), dens);
-
+					//C = (dens)+C*dens;//float4(computeColour(dens, rad), dens);
+					//C.rgb = lerp(float3(.5,.2,.3), float3(.28, .3, .5), dens);
 					C.a *= _AlphaDecay;//.2;
 					C.rgb *= C.a;
 					s = s + C*(1.-s.a);
-
+// C+=.051;
 					// P += vstep;
 
 
@@ -298,6 +316,7 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
 					dbg++;
 				}
 				C = s*1.;
+				C*0.5 + 0.5*C*C*(3.0-2.0*C);
 				//return float4(1, 1,1, dbg / 500. );
 //				C *= .5/exp(-length(P-pnear)*s.w);
 				//C = s;
