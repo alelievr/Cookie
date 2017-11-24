@@ -164,7 +164,8 @@ float3 computeColour( float density, float radius )
     
     // colour based on density alone. gives impression of occlusion within
     // the media
-    float3 result = lerp( 1.1*float3(.0,0.,0.8), float3(0.4,0.15,.1), density );
+	// float3 result = lerp( 1.1*float3(.0,0.,0.8), float3(0.4,0.15,.1), density );
+    float3 result = lerp( 1.1*float3(.80,0.2,0.), float3(0.104,0.15,.1), density );
     
     // colour added for nebula
     float3 colBottom = 3.1*float3(0.8,1.0,1.0);
@@ -278,11 +279,13 @@ float	di(float3 p)
 				float4	s = 0;
 				float	dbg = 0;
 				// P += -1*float3(-_Phase*3.1, .0, .0);
+				// P = eyeray.o + eyeray.d ;
 				for(float i = 0.; i < MAXSTEPS; i++)
 				{
+					// P += .1*eyeray.d;
 					if (s.a > .99)
 						continue;
-					float	rad = di(frac(.051*(P - expCenter - 1*float3(-_Phase*3., .0, .0)*1 ))-.5)-.125;
+					float	rad = di(frac(.1*(P - expCenter - 1*float3(-_Phase*3., .0, .0)*1 ))-.5)+.25;
 //s.argb += .1/(rad*rad);
 //break;
 					// if (rad > expRadius + .01) // always true
@@ -303,22 +306,40 @@ float	di(float3 p)
 
 
 					// dark debug magic
-					PP = eyeray.o + (eyeray.d+noise((P-_OffsetObj)*_Param)) * dist.y;
+
 //					s = distfunc(P-1*float3(-_Phase*3.1, .0, .0));
 					//s.w = clamp(s.w, 0., 60.);
 					// C = s.a * s + (1. - s.a) * C;
 
-					float	light = length(PP)-.15;
+					PP = pfar + (normalize(pnear-pfar)*dist.y ) * dist.y; 
+					// FIXME : Position relative a la cam (doit etre fixe dans l espace)
+					// commencer a pfar puis avancer de dir == normalize(pnear-pfar)*dist.y
+					// doesn't work , wtf is this shit ?
+					PP += -1*float3(-_Phase*30.1, .0, .0);
+					// if (dist.x < .01 && i > 1)
+						// continue; // skip sinuses
+					float	light = length(_expCenter.w*(frac(PP*(_OffsetObj.w))-.5))-.0125;
 					dist.x = light;
 					dist.y += dist.x;
-					if (s.a > 0. )
+					// if (s.a > 0. )
 					h += 
 					// dens
 					// *
-					0*
-					(.1/(light*light+.1))
+					1
 					*
-					float3(.1, .5, .2)
+					.00001*1./(light*light*.5)
+					//(.1/max(light*light, .085 ))
+					*
+					// float3(.1, .05, .82)
+					// *
+					float3
+					(
+						abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+0.00))
+						,
+						abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+1.04))
+						,
+						abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+2.08))
+					)
 					;
 
 					// if (s.a > 0. )
