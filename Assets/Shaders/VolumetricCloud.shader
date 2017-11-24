@@ -189,7 +189,10 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
     float l = length(p-0.5);//-0.5;
     float mouseIn = 0.75;
     float mouseY = 1.0 - mouseIn;
-    float den = 5.*tex3D(_Volume, p-1*float3(-_Phase*.1, .0, .0)).w +0- .25*r;// - 1.5*r*(4.*mouseY+.5);
+    float den = 5.*tex3D(_Volume, p-1*float3(-_Phase*.1, .0, .0)).w +0- .85*r;// - 1.5*r*(4.*mouseY+.5);
+
+	den = den * exp(1/r);
+
     // float den = 5.*Map(p-1*float3(-_Phase*.1, .0, .0)) - .25*r;
     // offset noise based on seed
     // float t = .1;

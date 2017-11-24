@@ -73,7 +73,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Param: 0.05
-    - _Phase: 802.5704
+    - _Phase: 20.823046
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
