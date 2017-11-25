@@ -279,7 +279,7 @@ float	di(float3 p)
 				float4	s = 0;
 				float	dbg = 0;
 				// P += -1*float3(-_Phase*3.1, .0, .0);
-				// P = eyeray.o + eyeray.d ;
+				PP = eyeray.o + eyeray.d ;
 				for(float i = 0.; i < MAXSTEPS; i++)
 				{
 					// P += .1*eyeray.d;
@@ -311,13 +311,23 @@ float	di(float3 p)
 					//s.w = clamp(s.w, 0., 60.);
 					// C = s.a * s + (1. - s.a) * C;
 
-					PP = pfar + (normalize(pnear-pfar)*dist.y ) * dist.y; 
+					PP = pnear + (normalize(pfar-pnear)*dist.y );// * dist.y; 
 					// FIXME : Position relative a la cam (doit etre fixe dans l espace)
+					// FIXED 
 					// commencer a pfar puis avancer de dir == normalize(pnear-pfar)*dist.y
 					// doesn't work , wtf is this shit ?
+
+					// PP = eyeray.o + eyeray.d * dist.y;
+
 					PP += -1*float3(-_Phase*30.1, .0, .0);
-					// if (dist.x < .01 && i > 1)
-						// continue; // skip sinuses
+
+					float	id = _expCenter.w*floor(((PP*(_OffsetObj.w))) ).x;
+					/// aaaaaargh
+					// WOUHOU
+PP.y += sin(id*8.)*3.;
+					if (dist.x < .01 && i > 1)
+						continue; // skip sinuses
+					// float	light = length(_expCenter.w*PP*(_OffsetObj.w));
 					float	light = length(_expCenter.w*(frac(PP*(_OffsetObj.w))-.5))-.0125;
 					dist.x = light;
 					dist.y += dist.x;
@@ -334,11 +344,11 @@ float	di(float3 p)
 					// *
 					float3
 					(
-						abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+0.00))
+						.15 // abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+0.00))
 						,
-						abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+1.04))
+						.15 // abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+1.04))
 						,
-						abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+2.08))
+						.95 // abs(sin(_expCenter.w*(floor((PP.x+PP.y+PP.z)*(_OffsetObj.w))-.5)+2.08))
 					)
 					;
 
