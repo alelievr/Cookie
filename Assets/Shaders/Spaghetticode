@@ -1,4 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
 Shader "Cookie/VolumetricCloud"
 {
@@ -55,6 +55,7 @@ float	_AlphaDecay;
 			struct v2f
 			{
 				float3 uv : TEXCOORD0;
+				UNITY_FOG_COORDS(1)
 				float4 vertex : SV_POSITION;
 				float3 position : TEXCOORD2;
 				float3 org : TEXCOORD1;
@@ -113,6 +114,7 @@ out float tfar)
 				// o.uv = mul(v.uv.xyz+_Offset.xyz, UNITY_MATRIX_TEXTURE0);
 				// o.uv = mul(v.vertex.xyz+_Offset.xyz, UNITY_MATRIX_TEXTURE0);
 				// o.uv = TRANSFORM_TEX(v.uv, _Volume);
+				//UNITY_TRANSFER_FOG(o,o.vertex);
 				return o;
 			}
     
@@ -156,12 +158,14 @@ float   noise(float3 p)
 	float expRadius;
 
 // assign colour to the media
-inline float3 computeColour( float density, float radius )
+float3 computeColour( float density, float radius )
 {
+    // these are almost identical to the values used by iq
+    
     // colour based on density alone. gives impression of occlusion within
     // the media
-	float3 result = lerp( 1.1*float3(.0,0.,0.8), float3(0.4,0.15,.1), density );
-    // float3 result = lerp( 1.1*float3(.80,0.2,0.), float3(0.104,0.15,.1), density );
+	// float3 result = lerp( 1.1*float3(.0,0.,0.8), float3(0.4,0.15,.1), density );
+    float3 result = lerp( 1.1*float3(.80,0.2,0.), float3(0.104,0.15,.1), density );
     
     // colour added for nebula
     float3 colBottom = 3.1*float3(0.8,1.0,1.0);
@@ -190,7 +194,7 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
 
 	// den = den*.5+ .25 * den * exp(1/r);
 
-	// den = den * exp(1/(r*r));
+	den = den * exp(1/(r*r));
 	// den = den * exp(1/(abs(r)-.1));
 
     // float den = 5.*Map(p-1*float3(-_Phase*.1, .0, .0)) - .25*r;
@@ -249,7 +253,7 @@ float	di(float3 p)
 				float	tnear, tfar;
 				bool hit = IntersectBox(eyeray, float3(-3,-3,-3)*3., 3.*float3(3,3,3), tnear, tfar );
 				if (!hit)
-					discard;//return float4(0,0,0,0);
+					return float4(0,0,0,0);
 					// LUL //discard; // much instructions such wow !!
 				if (tnear < 0.)
 					tnear = 0.;
@@ -276,13 +280,12 @@ float	di(float3 p)
 				float	dbg = 0;
 				// P += -1*float3(-_Phase*3.1, .0, .0);
 				PP = eyeray.o + eyeray.d ;
-				[loop]
 				for(float i = 0.; i < MAXSTEPS; i++)
 				{
 					// P += .1*eyeray.d;
 					if (s.a > .99)
 						continue;
-					float	rad = -0.105;//di(frac(.1*(P - expCenter - 1*float3(-_Phase*3., .0, .0)*1 ))-.5)+.25;
+					float	rad = di(frac(.1*(P - expCenter - 1*float3(-_Phase*3., .0, .0)*1 ))-.5)+.25;
 //s.argb += .1/(rad*rad);
 //break;
 					// if (rad > expRadius + .01) // always true
@@ -317,15 +320,15 @@ float	di(float3 p)
 					// PP = eyeray.o + eyeray.d * dist.y;
 
 					PP += -1*float3(-_Phase*30.1, .0, .0);
-
-					float	id = _expCenter.w*floor(((PP*(_OffsetObj.w))) ).x;
+					float3	ScaledPP = (PP*(_OffsetObj.w));
+					float	id = _expCenter.w*floor((ScaledPP.x+ScaledPP.y+ScaledPP.z) );
 					/// aaaaaargh
 					// WOUHOU
-PP.y += sin(id*8.)*3.;
-					if (dist.x < .01 && i > 1)
-						continue; // skip sinuses
+PP.y += sin(id*20.)*1.;
+					if (abs(dist.x) < .01 && i > 1)
+						break;//continue; // skip sinuses
 					// float	light = length(_expCenter.w*PP*(_OffsetObj.w));
-					float	light = length(_expCenter.w*(frac(PP*(_OffsetObj.w))-.5))-.0125;
+					float	light = length(_expCenter.w*(frac(ScaledPP)-.5))-.0125;
 					dist.x = light;
 					dist.y += dist.x;
 					// if (s.a > 0. )

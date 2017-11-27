@@ -72,8 +72,8 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Param: 0.035
-    - _Phase: 42.866062
+    - _Param: 0.075
+    - _Phase: 1068.915
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -86,5 +86,5 @@ Material:
     - _LocalScale: {r: 19.46, g: 18.17, b: 15.77, a: 0}
     - _ObjectCenter: {r: 6.14, g: 0, b: 0, a: 0}
     - _Offset: {r: 0.71, g: 0.59, b: 0.52, a: 0}
-    - _OffsetObj: {r: 14.14, g: -14.2, b: 42.2, a: 0.04}
+    - _OffsetObj: {r: 6.2, g: -5.4, b: 113.4, a: 0.04}
     - _expCenter: {r: -0.65, g: 802, b: 0, a: 0.17}
