@@ -256,7 +256,7 @@ float	MAXSTEPS;
 					// LUL //discard; // much instructions such wow !!
 				if (tnear < 0.)
 				{
-					MAXSTEPS -= tnear/MAXSTEPS;
+					//MAXSTEPS -= tnear/MAXSTEPS;
 					//tnear = 0.;
 				}
 				float3	pnear = eyeray.o + tnear * eyeray.d;
@@ -283,8 +283,9 @@ float	MAXSTEPS;
 				// P += -1*float3(-_Phase*3.1, .0, .0);
 				PP = eyeray.o + eyeray.d ;
 				float3	dir = normalize(pnear-pfar);
-				[loop]
-				for(float i = 0.; i < MAXSTEPS; i++)
+//				[loop]
+//				[unroll(1)]
+				for(float i = 0.; i < 100.; i++)
 				{
 					// P += .1*eyeray.d;
 					if (s.a > .99)
@@ -310,7 +311,7 @@ float	MAXSTEPS;
 					C.rgb *= C.a;
 					s = s + C*(1.-s.a);
 // C+=.051;
-					P += vstep;// - dens*.1*vstep;
+					P += vstep;///*dbg*/ - dens*vstep*1.;// - dens*.1*vstep;
 
 // P=pfar + (dir*dist.y );
 					if (dens >= .999)
