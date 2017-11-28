@@ -27,6 +27,7 @@
 		{
 			StandardPlanetSurface	spo;
 
+			spo.normal = normalize(spi.org - _ObjectCenter);
 			spo.color = float4(1, 1, 0, 1);
 
 			return spo;

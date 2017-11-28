@@ -33,16 +33,11 @@ struct StandardPlanetInput
 	float	length;
 };
 
-struct StandardPlanetOutput
-{
-	half4 color : SV_TARGET;
-};
-
 struct Input
 {
 	float3 position;
 	float3 normal;
-	float3	org;
+	float3 org;
 };
 
 struct PlanetAppdata
@@ -91,11 +86,10 @@ float	planetDE(float3 p, out bool inside)
 
 	inside = (t < s);
 
-	// return t; //min(s, t);
 	return min(s, t);
 }
 
-#define MAX_PLANET_ITER		50
+#define MAX_PLANET_ITER		30
 #define SURFACE_MIN			0.1f
 
 void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
@@ -106,8 +100,8 @@ void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
 	spi.length = 0;
 
 	// o.Albedo = float3(0, 0, 0);
-	o.Emission = float3(input.position);
-	o.Alpha = .2;
+	// o.Emission = float3(input.position);
+	// o.Alpha = .2;
 
 	// return ;
 
@@ -135,13 +129,10 @@ void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
 
 	INITIALIZE_PLANET_SURFACE(sps, spi);
 
-	sps.color = (inside) ? float4(0, 1, 1, 1) : float4(1, 1, 0, 1);
-	sps.emission = sps.color;
-
-	/*if (inside)
+	if (inside)
 		sps = planetSurface(spi);
 	else
-		sps = planetUnderground(spi);*/
+		sps = planetUnderground(spi);
 	
 	o.Albedo = sps.color.rgb;
 	o.Alpha = sps.color.a;
