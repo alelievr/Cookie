@@ -5,7 +5,7 @@ Shader "Cookie/VolumetricCloud"
 	Properties
 	{
 		_Volume ("Volume", 3D) = "" {}
-		_Param ("Float", float) = 0
+		_Param ("OLOL", Range(0, 0.1)) = 0
 		_Offset ("Offset", Vector) = (0, 0, 0, 0)
 		_Phase ("Phase", float) = 0
 		_ObjectCenter ("ObjectCenter", Vector) = (0, 0, 0, 0)
@@ -14,6 +14,7 @@ Shader "Cookie/VolumetricCloud"
 		_expCenter ("expCenter", Vector) = (0, 0, 0, 0)
 		expRadius ("expRadius", float) = 2.7
 		_AlphaDecay ("AlphaDecay", Range(0, 0.5)) = 0.2
+		[Space]_DensityMult ("Density Mult", Range(.25, 10)) = 1
 	}
 	SubShader
 	{
@@ -27,8 +28,6 @@ Shader "Cookie/VolumetricCloud"
 		Pass
 		{
 			CGPROGRAM
-// Upgrade NOTE: excluded shader from DX11; has structs without semantics (struct appdata members org)
-//#pragma exclude_renderers d3d11
 			#pragma vertex vert
 			#pragma fragment frag
 			// make fog work
@@ -45,6 +44,7 @@ float4 	_OffsetObj;
 float3	expCenter;
 float4	_expCenter;
 float	_AlphaDecay;
+float	_DensityMult;
 
 			struct appdata
 			{
@@ -183,7 +183,9 @@ float densityFn( in float3 p, in float r, out float rawDens, in float rayAlpha )
 //	p.x += .1*cos(_Phase+p.y);
 //	p.z += .1*sin(_Phase+p.y);
 	// float l = length(p) - 1.;
-    float den = 5.*tex3D(_Volume, p-0*1*float3(-_Phase*.1, .0, .0)).w +0 - 1.*r;// - 1.5*r*(4.*mouseY+.5);
+    float den = 5.*tex3D(_Volume, p-0*1*float3(-_Phase*.1, .0, .0)).w +0;// - 1.*r;// - 1.5*r*(4.*mouseY+.5);
+
+	den *= _DensityMult;
 
 	// den = den*.5+ .25 * den * exp(1/r);
 
@@ -230,9 +232,11 @@ float	di(float3 p)
 	return ret;
 }
 
-		#define MAXSTEPS	100.
+//		#define MAXSTEPS	100.
+float	MAXSTEPS;
             float4 frag (v2f i) : SV_Target
             {
+				MAXSTEPS = 100.;
 				expCenter = _expCenter.xyz;
 				// return tex3D(_Volume, (i.uv-_OffsetObj)*_Param ).wwww*10.; // all is in alpha ... I'm stupid
 				//return float4(i.uv, 1);
@@ -250,8 +254,11 @@ float	di(float3 p)
 				if (!hit)
 					discard;//return float4(0,0,0,0);
 					// LUL //discard; // much instructions such wow !!
-				// if (tnear < 0.)
-					// tnear = 0.;
+				if (tnear < 0.)
+				{
+					MAXSTEPS -= tnear/MAXSTEPS;
+					//tnear = 0.;
+				}
 				float3	pnear = eyeray.o + tnear * eyeray.d;
 				float3	pfar = eyeray.o + tfar * eyeray.d;
 
@@ -284,8 +291,8 @@ float	di(float3 p)
 						continue;
 					float	rad = di(frac(.1*(P - expCenter - 0*float3(-_Phase*3., _Phase, _Phase*2.)*1 ))-.5)+.25;
 					// rad = (ddx(rad) + ddy(rad))*10.;
-					if (rad < .25)
-					continue;
+			//		if (rad < .25)
+			//		continue;
 					//-0.105;
 //s.argb += .1/(rad*rad);
 //break;
@@ -296,7 +303,7 @@ float	di(float3 p)
 
 					dens = densityFn((P-_OffsetObj)*_Param, rad, rawDens, s.a);
 
-					C = float4(computeColour(dens, rad), dens);
+					C = float4(computeColour(dens, rad), dens / 2.);
 					// C = abs(dens)-.5*C*dens;//float4(computeColour(dens, rad), dens);
 					//C.rgb = lerp(float3(.5,.2,.3), float3(.28, .3, .5), dens);
 					C.a *= _AlphaDecay;//.2;
@@ -304,6 +311,7 @@ float	di(float3 p)
 					s = s + C*(1.-s.a);
 // C+=.051;
 					P += vstep;// - dens*.1*vstep;
+
 // P=pfar + (dir*dist.y );
 					if (dens >= .999)
 						continue;
