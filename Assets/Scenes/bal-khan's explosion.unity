@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: -8.2462015, g: -5.470763, b: -8.280733, a: 1}
+  m_IndirectSpecularColor: {r: 0.0008661749, g: 0.00057462824, b: 0.0008697734, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -183,8 +183,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 376598059}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9741865, y: 0.97418755, z: 0.97418755}
+  m_LocalPosition: {x: 2.26, y: -2.19, z: 1.87}
+  m_LocalScale: {x: 7.78, y: 7.49, z: 13.03}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -603,7 +603,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1371649209}
   - component: {fileID: 1371649212}
-  - component: {fileID: 1371649211}
   - component: {fileID: 1371649210}
   - component: {fileID: 1371649213}
   m_Layer: 0
@@ -660,20 +659,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!64 &1371649211
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1371649208}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Convex: 0
-  m_InflateMesh: 0
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &1371649212
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -800,6 +785,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookat: {fileID: 531510354}
+  yOffset: 0
+  yLookAtOffset: 0
   speed: 0.08
 --- !u!45 &1377356829
 Skybox:

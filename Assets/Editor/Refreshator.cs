@@ -14,6 +14,7 @@ public class Refreshator : EditorWindow
     public void OnEnable()
     {
          SceneView.onSceneGUIDelegate += OnScene;
+         Application.runInBackground = true;
     }
 
     void OnScene(SceneView v)

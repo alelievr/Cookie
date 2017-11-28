@@ -77,6 +77,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LocalScale: {r: 5, g: 5, b: 5, a: 0}
-    - _ObjectCenter: {r: 0.66, g: 0.57, b: 0.84, a: 0}
+    - _ObjectCenter: {r: 0.66, g: -5.7, b: 0.84, a: 0}
     - _PlanetHole: {r: 0, g: 0, b: -0.04, a: 0}
     - _Rotation: {r: 0, g: 0, b: 0, a: 1}
