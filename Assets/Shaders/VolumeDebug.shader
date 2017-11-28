@@ -1,4 +1,4 @@
-﻿Shader "Cookie/texture3D"
+﻿Shader "Cookie/VolumeDebug"
 {
 	Properties
 	{
@@ -27,7 +27,6 @@
 
 			struct vs_input {
 				float4 vertex : POSITION;
-				float4 pos : SV_POSITION;
 			};
 			
 			struct ps_input {

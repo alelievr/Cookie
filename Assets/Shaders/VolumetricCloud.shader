@@ -13,7 +13,7 @@ Shader "Cookie/VolumetricCloud"
 		_LocalScale ("Local scale", Vector) = (1, 1, 1, 0)
 		_expCenter ("expCenter", Vector) = (0, 0, 0, 0)
 		expRadius ("expRadius", float) = 2.7
-		_AlphaDecay ("AlphaDecay", float) = 0.2
+		_AlphaDecay ("AlphaDecay", Range(0, 0.5)) = 0.2
 	}
 	SubShader
 	{
@@ -28,7 +28,7 @@ Shader "Cookie/VolumetricCloud"
 		{
 			CGPROGRAM
 // Upgrade NOTE: excluded shader from DX11; has structs without semantics (struct appdata members org)
-#pragma exclude_renderers d3d11
+//#pragma exclude_renderers d3d11
 			#pragma vertex vert
 			#pragma fragment frag
 			// make fog work
