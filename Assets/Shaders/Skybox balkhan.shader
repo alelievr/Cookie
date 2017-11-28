@@ -174,14 +174,12 @@ float3 d = (IN.vertex) * .5;// + .5;//normalize(IN.vertex);
 			float	dst = 10.*(.25-distfunc(n-.97*randomed)-.97*randomed );
 			col_o.x = dst //+.1/(dst*dst+.1)
 			*1.;
-			col_o.xyz = col_o.xxx * float3(.85+.5*abs(sin(randomed*PI*2.+1.04)), .85+.5*abs(sin(randomed*PI*2.+0.0) ), .85+.5*abs(sin(randomed*PI*2.+2.08)) );
   //          float3 on = n;
             for(float i = 0.; i < 2.; i++)
             {
-//                n += -on*.01;
-//                col_o.x += length(n)/1.;
-//                col_o.x += .1/length(n*n*1.0);
+            //    col_o.x = sin( max(abs(d.x*20.), max(abs(d.y*20.), abs(d.z*20.)))-10.75);
             }
+            col_o.xyz = col_o.xxx * float3(.85+.5*abs(sin(randomed*PI*2.+1.04)), .85+.5*abs(sin(randomed*PI*2.+0.0) ), .85+.5*abs(sin(randomed*PI*2.+2.08)) );
 			col = col_o;//+flare(n.xyz);
 
             //DO NOT return negative values !
