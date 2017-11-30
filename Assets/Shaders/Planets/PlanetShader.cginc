@@ -99,11 +99,11 @@ void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
 	spi.dir = normalize(input.position - _WorldSpaceCameraPos.xyz);
 	spi.length = 0;
 
-	// o.Albedo = float3(0, 0, 0);
-	// o.Emission = float3(input.position);
+	o.Albedo = float3(0, 0, 0);
+	o.Emission = float3(input.position);
 	// o.Alpha = .2;
 
-	// return ;
+	return ;
 
 	bool 	inside = false;
 	float	surfDist = 1e20;

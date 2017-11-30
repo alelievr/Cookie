@@ -5,16 +5,19 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class RaymarchedPlanet : MonoBehaviour {
 
-	Material		material;
+	MeshRenderer	meshRenderer;
 
 	// Use this for initialization
 	void Start () {
-		material = GetComponent< MeshRenderer >().sharedMaterial;
+		meshRenderer = GetComponent< MeshRenderer >();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		material.SetVector("_ObjectCenter", transform.position);
-		material.SetVector("_LocalScale", transform.localScale);
+		foreach (var material in meshRenderer.sharedMaterials)
+		{
+			material.SetVector("_ObjectCenter", transform.position);
+			material.SetVector("_LocalScale", transform.localScale);
+		}
 	}
 }
