@@ -18,25 +18,34 @@ MonoBehaviour:
   - pbDefaultOpenInDockableWindow
   - pbGenerateUV2PerObject
   - pbDragSelectWholeElement
+  - pbStripProBuilderOnBuild
+  - pbDisableAutoUV2Generation
+  - pbForceConvex
+  - pbMeshesAreAssets
   m_Int_keys:
   - pbHandleAlignment
   - pbDefaultEditLevel
   - pbDefaultSelectionMode
   - pb_GIWorkflowMode
   - pbExtrudeMethod
+  - pbDefaultEntity
+  - pbDefaultCollider
+  - pbShadowCastingMode
   m_Float_keys:
   - pbEditorScroll.x
   - pbEditorScroll.y
   - pbExtrudeDistance
   m_String_keys: []
   m_Color_keys: []
-  m_Material_keys: []
-  m_Bool_values: 000101010001
-  m_Int_values: 0000000000000000010000000000000002000000
+  m_Material_keys:
+  - pbDefaultMaterial
+  m_Bool_values: 00010101000101000000
+  m_Int_values: 0000000000000000010000000000000002000000000000000200000002000000
   m_Float_values:
   - 0
   - 0
   - -1
   m_String_values: []
   m_Color_values: []
-  m_Material_values: []
+  m_Material_values:
+  - {fileID: 2100000, guid: 55296d1b6ee54e14e8eb4648d4b448ee, type: 2}

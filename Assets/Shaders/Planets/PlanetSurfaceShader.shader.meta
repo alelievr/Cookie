@@ -1,10 +1,12 @@
 fileFormatVersion: 2
 guid: 93e68902b0f60467fa945d7d748523a7
-timeCreated: 1512000514
+timeCreated: 1512138001
 licenseType: Free
 ShaderImporter:
   externalObjects: {}
-  defaultTextures: []
+  defaultTextures:
+  - _ElevationMap: {fileID: 2800000, guid: 1167b6604530641c09932cc8e06518e6, type: 3}
+  - _ColorMap: {fileID: 2800000, guid: 1c72f1a205dac4f85bbbde824e88a7e9, type: 3}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
