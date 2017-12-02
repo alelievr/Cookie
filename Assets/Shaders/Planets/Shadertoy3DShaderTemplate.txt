@@ -1,0 +1,58 @@
+﻿Shader "Cookie/#NAME#"
+{
+	Properties
+	{
+		[HideInInspector]_ObjectCenter ("Object Center", Vector) = (0, 0, 0)
+		[HideInInspector]_LocalScale ("Local scale", Vector) = (1, 1, 1, 1)
+	}
+	SubShader
+	{
+		Tags { "RenderType"="Transparent" "Queue"="Transparent" }
+		LOD 100
+
+		ZWrite On
+		ZTest On
+		Blend SrcAlpha OneMinusSrcAlpha
+
+		Pass
+		{
+	
+			CGPROGRAM
+	
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "PlanetShader.cginc"
+
+			#define ITER	100
+			#define EPSY	0.01
+			
+			float map(float3 pos)
+			{
+				return length(pos) - (.599 * _LocalScale.x);
+			}
+
+			void mainImage(out float4 fragColor, float3 dir, float3 org)
+			{
+				float t = 0;
+
+				for (int i = 0; i < 60; i++)
+				{
+					float3 p = org + dir * t;
+	
+					float d = map(p);
+	
+					if (d < EPSY)
+					{
+						fragColor = float4(0, 1, 1, 1);
+						break ;
+					}
+	
+					t += d;
+				}
+			}
+		
+			ENDCG
+		}
+	}
+}
