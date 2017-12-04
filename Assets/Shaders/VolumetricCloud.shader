@@ -5,6 +5,7 @@ Shader "Cookie/VolumetricCloud"
 	Properties
 	{
 		_Volume ("Volume", 3D) = "" {}
+		_Noise ("Noise", 2D) = "" {}
 		_Scale ("Scale", Range(0, 0.1)) = 0
 		_Offset ("Offset", Vector) = (0, 0, 0, 0)
 		_Phase ("Phase", float) = 0
@@ -17,6 +18,8 @@ Shader "Cookie/VolumetricCloud"
 		expRadius ("expRadius", float) = 2.7
 		_AlphaDecay ("AlphaDecay", Range(0, 0.5)) = 0.2
 		[Space]_DensityMult ("Density Mult", Range(.25, 10)) = 1
+		zMax ("zMax", Range(.1, 80.) ) = 40.
+		absorption ("absorbtion", Range(1., 100) ) = 20.
 	}
 	SubShader
 	{
@@ -32,16 +35,17 @@ Tags
         Cull Front
         Lighting Off
         ZWrite Off
-		Blend One One
+		BlendOp Add
+		Blend One OneMinusSrcAlpha
 
 		Pass
 		{
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma multi_compile_instancing
-            #pragma multi_compile _ PIXELSNAP_ON
-            #pragma multi_compile _ ETC1_EXTERNAL_ALPHA
+//			#pragma multi_compile_instancing
+//            #pragma multi_compile _ PIXELSNAP_ON
+//            #pragma multi_compile _ ETC1_EXTERNAL_ALPHA
 //            #include "UnitySprites.cginc"
 //			#include "UnityCG.cginc"
 
@@ -59,7 +63,11 @@ float	_DensityMult;
 float4	_ColorOne;
 float4	_ColorTwo;
 float4	_Lights[10];
-
+sampler3D	_Volume;
+sampler2D	_Noise;
+float4		_Offset;
+float	zMax;
+float	absorption;
 			struct appdata
 			{
 				float4 vertex : POSITION;
@@ -73,9 +81,6 @@ float4	_Lights[10];
 				float3 position : TEXCOORD2;
 				float3 org : TEXCOORD1;
 			};
-
-			sampler3D	_Volume;
-			float4		_Offset;
 
 
 
@@ -148,23 +153,72 @@ float3 computeColour( float density, float radius )
     // colour added for nebula
     float3 colBottom = 3.1*float3(0.8,1.0,1.0);
     float3 colTop = 2.*float3(0.48,0.53,0.5);
-    result *= lerp( colBottom*2.0, colTop, min( (radius+.5)/1.7, 1.0 ) );
+    //result *= lerp( colBottom*2.0, colTop, min( (radius+.5)/1.7, 1.0 ) );
     
     return result;
 }
 
-float	scene(float3 p, out float4 col)
+float noise( in float3 x )
+{
+	// return 5.*tex3D(_Volume, (x-_OffsetObj.xyz) * _Scale ).w;
+	float3 p = floor(x);
+	float3 f = frac(x);
+	f = f*f*(3.0-2.0*f);
+	float2 uv = (p.xy+float2(37.0,17.0)*p.z) + f.xy;
+	float2 rg = tex2D( _Noise, (uv+ 0.5)/256.0 ).ww;
+	return 1.-rg.x;//1. - 0.82*lerp( rg.x, rg.y, f.z );
+}
+
+float fbm( float3 p )
+{
+   return noise(p*.06125)*.5 + noise(p*.125)*.25 + noise(p*.25)*.125 + noise(p*.4)*.2;
+}
+
+float	scene(float3 p, out float4 col, float prog)
 {
     float4	objColor = float4(1, 0, 0, 1);
-    float	cloudDensity = -(length(p) )*.05 + 5.*tex3D(_Volume, (p-_OffsetObj.xyz) * _Scale ).w;
-	cloudDensity = 5.*tex3D(_Volume, (frac((p-_OffsetObj.xyz) * _Scale * .5)-.0)*.7 ).w;
-	cloudDensity = (cloudDensity);
+    float	cloudDensity = -(length(p) )*.05 + 5.*tex3D(_Volume, (p-_OffsetObj.xyz) * _Scale ).w ;
+	//cloudDensity = 5.*tex3D(_Volume, (frac((p-_OffsetObj.xyz) * _Scale * .5)-.0)*.7 ).w;
+	//cloudDensity = (cloudDensity);
     float   de = -(length(p.xz)-2.1);
 
    if (de > .001)
        col = _ColorOne;
-
+	cloudDensity = min(cloudDensity, 1.);
     return cloudDensity;//max(cloudDensity, de);
+}
+
+/*
+float	scene(float3 p, out float4 col)
+{
+	float	ret = 0.;
+	col = float4(1, 0, 0, 1);
+
+	ret = -(length(( (p.xyz)) * 4 )-10.5001);
+
+	//ret += fbm(p*20.)*10.;
+	return ret;
+}
+*/
+
+float	calcdens(float3 p)
+{
+	float	ret;
+
+	ret = -(length(p.xz-float2(0., 3.)-tex3D(_Volume, (p-_OffsetObj.xyz) * _Scale ).w*4.)-1.);
+
+	ret = max
+	(
+		ret
+		,
+		-
+		(
+			length(float2(length(p.xy)-10., p.z+3.))-1.-tex3D(_Volume, (p-_OffsetObj.xyz) * _Scale ).w*4.
+		)
+
+	);
+
+	return ret;
 }
 
             float4 frag (v2f i) : SV_Target
@@ -191,7 +245,7 @@ float	scene(float3 p, out float4 col)
 					
 				}
 				float3	pnear = eyeray.o + tnear * eyeray.d;
-				float3	pfar = eyeray.o + tfar * eyeray.d;
+				float3	pfar  = eyeray.o + tfar  * eyeray.d;
 
 				C = 0;
 				/*
@@ -210,52 +264,38 @@ float	scene(float3 p, out float4 col)
 				float	dens, rawDens;
 				float3	dir = eyeray.d;//normalize(pnear-pfar);
 				
-const int nbSample = 150;
+const int nbSample = 550;
 
 float4	color		= float4(0, 0, 0, 0);
-float	zMax        = float(nbSample)*.25;
+
 float	dstep        = zMax / float(nbSample);
 float3	p           = pnear ;// * 30;
 float	T			= 1;
-float	absorption	= 1.;
+float	dist		= 0.;
+float	step_dist	= 0.;
 	[loop]
 	for(int i=0; i<nbSample; i++)
 	{
+		p = eyeray.o + eyeray.d * dist;
     	float4 col;
-    	float density = scene(p, col);
-		//density += scene(p*2., col)*.5;
-		//density += scene(p*4., col)*.25;
-		//density += scene(p*8., col)*.125;
-		//dstep = .25 / (1.+density);
-    	if(density > 0.)
+    	float density = calcdens(p);
+		float	d = max(( -density )*.6,0.0);
+		step_dist = d + dstep;	
+		density *= _DensityMult;
+    	if (density > 0.)
     	{
-			// density += scene(p*.5, col);
-        	float tmp = density / float(nbSample);
-        	T *= 1. - tmp * absorption;
-        	if( T <= 0.0001)
-        	    break;
-
-        	float light = 0;
-        	float lightDensity = length(p + float3(5, -10, 5)) / zMax;
-
-        	lightDensity = 1./(lightDensity * lightDensity);//pow(lightDensity, .7);
-
-        	light = lightDensity * absorption / float(nbSample);
-
-        	//Add ambiant + light scattering color
-        	color += float4(lerp(_ColorOne.xyz, _ColorTwo.xyz, tmp-T), 1.) * 40. * tmp * T*1 + float4(lerp(_ColorOne.xyz, _ColorTwo.xyz, density -0 * exp(-density) ), 1) * light*80.*tmp;//80. * tmp * T * light;
+			float	brightness = exp(-.6*density);
+			float4	fog = exp(.00125-step_dist * .2 * density);
+			color.xyzw += lerp(_ColorOne, _ColorTwo, clamp(density, 0., 1.))*T * ( float4(1.0, 1.0, 1.0, 1.0) - fog) * brightness;
+			T *= fog;
+			color.w = 1;
     	}
-    	p += dir * dstep;
-	}				
-				// color = color*color*(3.0-2.0*color);
-				// color = color*color*(3.0-2.0*color);
-				// color = color*color*(3.0-2.0*color);
-				// C = s*1.;
-				// color.w = 1;
+		dist += step_dist;
+		if( T <= 0.0001 || dist > 200.)
+		    break;
+	}
 				C = (color);
 			    Color = C;
-				// Color.w = 1.;
-
 	            return Color;
             }
 
