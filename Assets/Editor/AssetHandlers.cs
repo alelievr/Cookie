@@ -4,26 +4,15 @@ using System.Reflection;
 
 public class AssetHandler
 {
-	static string surfaceTemplatePath = "Assets/Shaders/Planets/StandardPlanetSurfaceShaderTemplate.txt";
-	static string underGroundTemplatePath = "Assets/Shaders/Planets/StandardPlanetUndergroundShaderTemplate.txt";
+	static string shadertoy3DTemplate = "Assets/Shaders/Planets/Shadertoy3DShaderTemplate.txt";
 
-	[MenuItem("Assets/Create/Shader/Standard Planet Surface", false, -10)]
-	public static void CreateStandardSurfacePlanetShader()
-	{
-		string path = "Assets/Shaders/Planets/Standard Surface.shader";
-
-		MethodInfo methodInfo = typeof(ProjectWindowUtil).GetMethod("CreateScriptAsset", BindingFlags.Static | BindingFlags.NonPublic);
-
-		methodInfo.Invoke(null, new object[]{surfaceTemplatePath, path});
-	}
-	
-	[MenuItem("Assets/Create/Shader/Standard Planet Underground", false, -10)]
+	[MenuItem("Assets/Create/Shader/Shadertoy3D shader", false, -10)]
 	public static void CreateStandardUndergroundPlanetShader()
 	{
-		string path = "Assets/Shaders/Planets/Standard Underground.shader";
+		string path = "Assets/Shaders/Planets/Shadertoy3DObject.shader";
 
 		MethodInfo methodInfo = typeof(ProjectWindowUtil).GetMethod("CreateScriptAsset", BindingFlags.Static | BindingFlags.NonPublic);
 
-		methodInfo.Invoke(null, new object[]{underGroundTemplatePath, path});
+		methodInfo.Invoke(null, new object[]{shadertoy3DTemplate, path});
 	}
 }

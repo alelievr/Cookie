@@ -1,15 +1,7 @@
 ﻿#pragma vertex vert
 #pragma fragment frag
-// make fog work
-#pragma multi_compile_fog
 
-#include "UnityCG.cginc"
-
-float	_PlanetSize;
-float4	_PlanetHole;
-float4 	_ObjectCenter;
-float4 	_Rotation;
-float4	_LocalScale;
+void mainImage(out float4 color, float3 dir, float3 org);
 
 struct appdata
 {
@@ -17,125 +9,60 @@ struct appdata
 	float3 normal : NORMAL;
 };
 
-struct StandardPlanetSurface
-{
-	float3	hitPos;
-	float	dist;
-	float4	color;
-	float3	normal;
-	float3	emission;
-};
-
-struct StandardPlanetInput
-{
-	float3	dir;
-	float3	org;
-	float	length;
-};
-
 struct Input
 {
-	float3 position;
-	float3 normal;
-	float3 org;
+	float4 vertex : SV_POSITION;
+	float3 position : TEXCOORD2;
+	float3 origin : TEXCOORD1;
 };
 
-struct PlanetAppdata
+float4	_LocalScale;
+float4 	_ObjectCenter;
+
+Input vert(in appdata v)
 {
-	float4	vertex : POSITION;
-	float3	normal : NORMAL;
-	float4	tangent : TANGENT;
-};
+	Input i;
 
-StandardPlanetSurface planetSurface(inout StandardPlanetInput spi);
-StandardPlanetSurface planetUnderground(inout StandardPlanetInput spi);
+	i.vertex = UnityObjectToClipPos(v.vertex);
+	i.position = mul(v.vertex + _ObjectCenter / _LocalScale.xyz, unity_ObjectToWorld).xyz;
+	i.origin = _WorldSpaceCameraPos - _ObjectCenter;
 
-#define INITIALIZE_PLANET_SURFACE(spo, spi) { \
-	spo.hitPos = spi.org; \
-	spo.dist = spi.length; \
-	spo.color = float4(1, 1, 0, 1); \
-	spo.normal = float3(0, 1, 0); \
-	spo.emission = float3(0, 0, 0); \
+	return i;
 }
 
-void	vertFunc(inout PlanetAppdata v, out Input o)
+float    boundingSphere(inout float3 ro, in float3 rd)
 {
-	UNITY_INITIALIZE_OUTPUT(Input, o);
-	o.position = mul(v.vertex + _ObjectCenter / _LocalScale.xyz, unity_ObjectToWorld).xyz;//mul((float4x4)unity_ObjectToWorld, v.vertex);//v.vertex.xyz;//mul(v.vertex.xyz, (float3x3)unity_WorldToObject);
-	float3 cam = _WorldSpaceCameraPos;//-o.position;
-//cam.xz = mul(float2x2(cos(_Time.x*50.), sin(_Time.x*50.), -sin(_Time.x*50.), cos(_Time.x*50.) ), cam.xz);
-	o.org = cam - _ObjectCenter;//+o.position;
-	o.normal = v.normal;
-}
+	float       minSphereDist = 2.;
+	float       boundingEpsy = 0.01;
+	float       d = 0;
+	float       l;
+	float3        oro = ro;
 
-float	sdSphere(float3 p)
-{
-	return length(p) - _PlanetSize;
-}
-
-float	sdcyl(float3 p)
-{
-	return length(p.xy - _PlanetHole.xy) - _PlanetHole.z;
-}
-
-float	planetDE(float3 p, out bool inside)
-{
-	p /= 5;
-	float	s = sdSphere(p);
-	float	t = sdcyl(p);
-
-	inside = (t < s);
-
-	return min(s, t);
-}
-
-#define MAX_PLANET_ITER		30
-#define SURFACE_MIN			0.1f
-
-void	planetSurfaceFunc(Input input, inout SurfaceOutputStandard o)
-{
-	StandardPlanetInput	spi;
-	spi.org = input.org;
-	spi.dir = normalize(input.position - _WorldSpaceCameraPos.xyz);
-	spi.length = 0;
-
-	o.Albedo = float3(0, 0, 0);
-	o.Emission = float3(input.position);
-	// o.Alpha = .2;
-
-	return ;
-
-	bool 	inside = false;
-	float	surfDist = 1e20;
-
-	for (int i = 0; i < MAX_PLANET_ITER; i++)
+	for (int i = 0; i < 40; i++)
 	{
-		float3 p = spi.org + spi.dir * spi.length;
-		surfDist = planetDE(p, inside);
-		spi.length += surfDist / 1;
+		ro = oro + rd * d;
 
-		if (surfDist < SURFACE_MIN)
-			break ;
+		l = length(ro) - minSphereDist;
+
+		if (l < boundingEpsy)
+			return d;
+
+		d += l / 2;
 	}
+	return -1;
+}
 
+fixed4 frag (Input i) : SV_TARGET
+{
+	float3	dir = normalize(i.position - _WorldSpaceCameraPos.xyz);
+	float3	org = i.origin;
+	float4	col = float4(1, 1, 1, 0);
+	float	t = 0;
 
-	if (surfDist > SURFACE_MIN)
-	{
-		o.Alpha = 0;
-		return ;
-	}
-
-	StandardPlanetSurface	sps;
-
-	INITIALIZE_PLANET_SURFACE(sps, spi);
-
-	if (inside)
-		sps = planetSurface(spi);
-	else
-		sps = planetUnderground(spi);
+	if (boundingSphere(org, dir) == -1)
+		return float4(0, 1, 1, 1);
 	
-	o.Albedo = sps.color.rgb;
-	o.Alpha = sps.color.a;
-	o.Emission = sps.emission;
-	o.Normal = sps.normal;
+	mainImage(col, dir, org);
+
+	return col;
 }
