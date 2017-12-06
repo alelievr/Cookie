@@ -235,16 +235,16 @@ float3 render(float3 ro, float3 rd)
 {
 	float3x3 r = rm(float3(0, 1, 0), _Time.x);
     float2 d = ray_vs_sphere(ro, rd, R_INNER);
-	float3 atmosphere = scatter(ro, rd, d);
+	float3 atmosphere = float3(.5, .5, .5);//scatter(ro, rd, d);
     
-    if (d.x < MAX - 1.0)
+    if (d.x < 10000 - 1.0)
 	{
 		float3 hit = mul(normalize(d.x * rd + ro), r);
 		float h = (fbm(hit * 10.0) / 5.0 + fbm(hit + SEED)) - 0.2;
 		return surfaceColor(h, hit.y) * length(atmosphere * 1.5) * (atmosphere + 0.75);
 	}
     
-    return float3(1, 1, 0);
+    return atmosphere;
 }
 
 void mainImage(out float4 fragColor, in float3 dir, in float3 pos)

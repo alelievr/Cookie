@@ -24,40 +24,10 @@
 			#pragma vertex vert
 			#pragma fragment frag
 			
-			#include "UnityCG.cginc"
+			#include "PlanetShader.cginc"
 			
-			struct appdata
-			{
-				float4 vertex : POSITION;
-				float3 normal : NORMAL;
-			};
-	
-			struct Input
-			{
-				float4 vertex : SV_POSITION;
-				float3 position : TEXCOORD2;
-				float3 origin : TEXCOORD1;
-			};
-	
-			float4	_LocalScale;
-			float4 	_ObjectCenter;
-	
 			sampler2D _ColorMap;
 			sampler2D _ElevationMap;
-	
-			#define ITER	60
-			#define EPSY	0.1
-			
-			Input vert(in appdata v)
-			{
-				Input i;
-
-				i.vertex = UnityObjectToClipPos(v.vertex);
-				i.position = mul(v.vertex + _ObjectCenter / _LocalScale.xyz, unity_ObjectToWorld).xyz;
-				i.origin = _WorldSpaceCameraPos - _ObjectCenter;
-
-				return i;
-			}
 	
 			float pi          = 3.1415926535;
 			float degrees     = 0.017453292519444;
@@ -124,13 +94,13 @@
 			
 			// Directional light source
 			#define w_i             (float3(1.0, 1.0, -0.8) / 1.6248076)
-			const float3 B_i             = float3(4, 4, 4);
+			#define B_i             float3(4, 4, 4)
 			
-			const float3      planetCenter    = float3(0, 0, 0);
+			#define planetCenter    float3(0, 0, 0)
 			
 			// Including mountains
-			const float       planetMaxRadius = 1000000.0;
-			const float       maxMountain = 0.13;
+			#define       planetMaxRadius 1.0
+			#define       maxMountain 0.13
 			
 			#define planetMinRadius (planetMaxRadius - maxMountain)
 			
@@ -192,7 +162,7 @@
 			}
 			
 			
-			void mainImage(out float4 fragColor, in float3 dir, in float3 org) {
+			void mainImage(out float4 fragColor, float3 dir, float3 org) {
 				// Rotate over time
 				float yaw   = 0;
 				float pitch = 0;
@@ -299,41 +269,7 @@
 					fragColor.xyz = float3(1, 1, 0);
 				fragColor.a   = 1.0;//maxDistanceToPlanet;
 			}
-			
-			float map(float3 pos)
-			{
-				return length(pos) - (.99 * _LocalScale.x);
-			}
-			
-			fixed4 frag (Input i) : SV_TARGET
-			{
-				float3	dir = normalize(i.position - _WorldSpaceCameraPos.xyz);
-				float3	org = i.origin;
-				float4	col = float4(1, 1, 1, 0);
-				float	t = 0;
-				
-				mainImage(col, dir, org);
-	
-				return col;
-	
-				for (int i = 0; i < ITER; i++)
-				{
-					float3 p = org + dir * t;
-	
-					float d = map(p);
-	
-					if (d < EPSY)
-					{
-						col = float4(0, 1, 1, 1);
-						break ;
-					}
-	
-					t += d;
-				}
-	
-	
-				return col;
-			}
+		
 			ENDCG
 		}
 	}
