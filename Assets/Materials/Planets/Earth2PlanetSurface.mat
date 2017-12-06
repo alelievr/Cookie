@@ -73,15 +73,16 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TerrainAdjust: 0.5
-    - _TimeScale: 0.2
+    - _TimeScale: 0
     - _UVSec: 0
+    - _WaterColorAdjust: 1
     - _WaterPercent: 0.556
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LocalScale: {r: 1, g: 1, b: 1, a: 0}
-    - _ObjectCenter: {r: 0, g: 0, b: 6.24, a: 0}
+    - _ObjectCenter: {r: -5.18, g: 0, b: 277.77002, a: 0}
     - _TerrainColor1: {r: 0.38235295, g: 0.26024038, b: 0.19398789, a: 1}
     - _TerrainColor2: {r: 0.30882353, g: 0.17069858, b: 0.022707615, a: 1}
     - _TerrainColor3: {r: 0, g: 0, b: 0, a: 1}

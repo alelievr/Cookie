@@ -4,6 +4,7 @@
 	{
 		[HideInInspector]_ObjectCenter ("Object Center", Vector) = (0, 0, 0)
 		[HideInInspector]_LocalScale ("Local scale", Vector) = (1, 1, 1, 1)
+        [HideInInspector]_SoundVolume ("Audio volume", Float) = 0
 	}
 	SubShader
 	{

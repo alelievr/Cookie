@@ -60,7 +60,7 @@ fixed4 frag (Input i) : SV_TARGET
 	float	t = 0;
 
 	if (boundingSphere(org, dir) == -1)
-		return float4(0, 1, 1, 1);
+		return float4(0, 1, 1, 0); //alpha bounding sphere
 	
 	mainImage(col, dir, org);
 
