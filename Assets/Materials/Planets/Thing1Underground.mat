@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: SaturnePlanetSurface
-  m_Shader: {fileID: 4800000, guid: f513f926f3a3747d8a50a7a736e0acf6, type: 3}
+  m_Name: Thing1Underground
+  m_Shader: {fileID: 4800000, guid: 9df567eaf256442a3b66700e71c74dee, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -64,27 +64,16 @@ Material:
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
-    - _NoiseResolution: 0.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PlanetSize: 1
-    - _Seed: 86.65
     - _SmoothnessTextureChannel: 0
+    - _SoundVolume: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TerrainAdjust: 0.5
-    - _TimeScale: 0.2
     - _UVSec: 0
-    - _WaterColorAdjust: 0.79
-    - _WaterPercent: 0
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LocalScale: {r: 1, g: 1, b: 1, a: 0}
-    - _ObjectCenter: {r: 14.739, g: 0, b: 6.24, a: 0}
-    - _TerrainColor1: {r: 0.33823532, g: 0.14153741, b: 0.034818336, a: 1}
-    - _TerrainColor2: {r: 0.45588237, g: 0.33640975, b: 0.22794119, a: 1}
-    - _TerrainColor3: {r: 0.2352941, g: 0.08275862, b: 0, a: 1}
-    - _WaterColor1: {r: 1, g: 1, b: 1, a: 1}
-    - _WaterColor2: {r: 0.03287197, g: 0.5588235, b: 0.47176942, a: 1}
+    - _ObjectCenter: {r: -5.7699995, g: 0, b: 277.77002, a: 0}

@@ -1,30 +1,26 @@
-﻿Shader "Cookie/CubeUnderground"
-{
+﻿
+Shader "Cookie/Thing1Underground"
+{	
 	Properties
 	{
-		[HideInInspector]_ObjectCenter ("Object Center", Vector) = (0, 0, 0)
-		[HideInInspector]_LocalScale ("Local scale", Vector) = (1, 1, 1, 1)
-        [HideInInspector]_SoundVolume ("Audio volume", Float) = 0
+		_MainTex ("Texture", 2D) = "white" {}
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Transparent" "Queue"="Transparent" }
+		Tags {"Queue"="Transparent" "RenderType"="Transparent" }
 		LOD 100
-
-		ZWrite On
-		ZTest On
-		Blend SrcAlpha OneMinusSrcAlpha
-
+		ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
 		Pass
 		{
-	
 			CGPROGRAM
-	
 			#pragma vertex vert
 			#pragma fragment frag
+			// make fog work
+			#pragma multi_compile_fog
 
 			#include "PlanetShader.cginc"
-			
+
 float 	t;
 
 #define I_MAX		100
@@ -38,34 +34,53 @@ void	rotate(inout float2 v, float angle);
 
 float	neo, h, accum, trinity, rabbit;
 float	col_id;
-float4	olol(float3 dir, float3 pos)
+
+float4	render(float3 dir, float3 pos)
 {
-    float4	inter = (march(pos, dir));
+	col_id = 0.;
+	neo = 0.;h = 0.;accum = 0.;trinity = 0.;rabbit = 0.;
+    t = _Time.x;
 
     float3	col = float3(0., 0., 0.);
+
+    float4	inter = (march(pos, dir));
+
+	float3	base = float3(.8, .0, 1.);
+    //rotate(dir.zx, .001251*inter.w+t*.1);
+//float3	p = inter.w*dir + pos;
+//    col.xyz = 
+//        -float3(.0,.0,.5)*(sin(3.14+p.z*1.*(inter.w>100.?0.:1.) ))
+//        +
+//        200.*(1./((length(p.xy+sin(p.z*2.)*.25)-4.5)*(length(p.xy+sin(p.z*2.)*.25)-4.5)) )
+//        -
+//        1.*(float3(.17, .3,.6))*(inter.x*.0051+0.-inter.w*.0751);//*(1.+inter.x*.01+inter.w*.005*(inter.x/float(I_MAX) )));
+//        if (inter.w <= 0.)
+//        	col.x = 1;
     float4	c_out =  float4(col,1.0)*1.;
     c_out.xyz += neo * float3(.7, .6, .3);
     if (col_id == 2.)
+    {
     	c_out.xyz += (1.-inter.w*.051)*float3(.3,.4,.7);
+
+    }
     if (col_id == 1.)
     {
     	c_out.xyz += (1.-inter.w*.051)*float3(.38,.75,.5);
-    	c_out.xyz += rabbit*.00001*float3(1., .4, .5);
+    	    	c_out.xyz += rabbit*.00001*float3(1., .4, .5);
     }
 //    if (col_id == 0.)
     	c_out.xyz += (inter.x*.0051)*float3(.5,.3,.25)*h;
 c_out.xyz += .0051*trinity*float3(.2, .150, .950);
     	c_out.xyz *= accum;
    //c_out.x += step(uv.x, .502)*step(.5, uv.x);
-// c_out.zyx *= 1.-1.5*length(uv);
 // c_out.w = 0.;
     return	c_out;
 }
 
- 			void mainImage(out float4 fragColor, float3 dir, float3 org)
-			{
-				fragColor = olol(dir, org);
-			}
+void mainImage(out float4 fragColor, float3 dir, float3 org)
+{
+    fragColor = render(dir, org);
+}
 
 #define POWER	9.
 #define PI		3.14
@@ -234,8 +249,10 @@ float3	camera(float2 uv)
 
     return (normalize((uv.x) * right + (uv.y) * up + fov * forw));
 }
-		
-			ENDCG
-		}
+
+	
+	//	}
+		ENDCG
 	}
+}
 }

@@ -38,7 +38,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4723131701622628}
   m_Layer: 0
-  m_Name: planetEarth
+  m_Name: Earthplanet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

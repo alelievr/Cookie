@@ -1,4 +1,4 @@
-﻿Shader "Cookie/PlanetUndergroundThings"
+﻿Shader "Cookie/Thing2Underground"
 {
 	Properties
 	{
@@ -76,7 +76,7 @@ float3 blackbody(float Temp)
 
 // -------------blackbody----------------- //
 
-void mainImage(out float4 c_out, in float3 dir, float3 pos)
+void mainImage(out float4 c_out, float3 dir, float3 pos)
 {
     t  = _Time.x;
     float3	col = float3(0., 0., 0.);
