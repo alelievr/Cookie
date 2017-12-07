@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 913a6c6f07f5b4913a7aa9b9769ff205
-timeCreated: 1511956328
+guid: 07eb8beca79e342bd8355319daf4f943
+timeCreated: 1512606729
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
@@ -16,8 +16,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: None
-    second: {fileID: 2100000, guid: a160f91e8e7dc4a8194bc283af85e7f3, type: 2}
+      name: planetSurfacce
+    second: {fileID: 2100000, guid: 965a68bbbfbd342259da16f1e02c19ae, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: planetUnderground
+    second: {fileID: 2100000, guid: 47ea2350d791946d49ee71c8d61df8aa, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
