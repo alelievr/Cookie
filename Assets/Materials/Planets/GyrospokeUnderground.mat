@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Thing1Underground
-  m_Shader: {fileID: 4800000, guid: 9df567eaf256442a3b66700e71c74dee, type: 3}
+  m_Name: GyrospokeUnderground
+  m_Shader: {fileID: 4800000, guid: 845357f0e18dc4b9d9c60f47de32368d, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -76,4 +76,4 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LocalScale: {r: 1, g: 1, b: 1, a: 0}
-    - _ObjectCenter: {r: 2.1200113, g: 0, b: 277.77002, a: 0}
+    - _ObjectCenter: {r: 12.162, g: 0.019999996, b: 272.77002, a: 0}
