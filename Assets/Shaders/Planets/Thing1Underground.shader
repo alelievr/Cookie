@@ -79,7 +79,7 @@ c_out.xyz += .0051*trinity*float3(.2, .150, .950);
 
 void mainImage(out float4 fragColor, float3 dir, float3 org)
 {
-    fragColor = render(dir, org);
+    fragColor = float4(1,1,1,1);//render(dir, org);
 }
 
 #define POWER	9.

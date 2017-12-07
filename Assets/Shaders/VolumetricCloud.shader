@@ -205,7 +205,21 @@ float	calcdens(float3 p)
 {
 	float	ret;
 
-	ret = -(length(p.xz-float2(0., 3.)-tex3D(_Volume, (p-_OffsetObj.xyz) * _Scale ).w*4.)-1.);
+	ret = 
+		-
+		(
+			max
+			(
+				length(p.xz-float2(0., 3.)-tex3D(_Volume, (p-_OffsetObj.xyz) * _Scale ).w*4.)-3.
+				,
+				max(
+					p.y -10.
+					,
+					-p.y -10.
+				)
+			)
+		)
+		;
 
 	ret = max
 	(
@@ -213,7 +227,7 @@ float	calcdens(float3 p)
 		,
 		-
 		(
-			length(float2(length(p.xy)-10., p.z+3.))-1.-tex3D(_Volume, (p-_OffsetObj.xyz) * _Scale ).w*4.
+			length(float2(length(p.xy)-10., p.z+3.))-3.-tex3D(_Volume, (p-_OffsetObj.xyz+10.*float3(sin(_Time.x), sin(-_Time.x)*.25, cos(_Time.x+1.57)) ) * _Scale ).w*4.
 		)
 
 	);
@@ -224,79 +238,65 @@ float	calcdens(float3 p)
             float4 frag (v2f i) : SV_Target
             {
 				expCenter = _expCenter.xyz;
-				// return tex3D(_Volume, (i.uv-_OffsetObj)*_Param ).wwww*10.; // all is in alpha ... I'm stupid
-				//return float4(i.uv, 1);
-				//return float4(_Phase, 0,0, 1.);
-                float4 Color = float4(0.,0.,0.,1.);//tex3D(_Volume, i.uv);
+                float4 Color = float4(0.,0.,0.,1.);
 				float4 C = 0;
 
 				Ray	eyeray;
 				eyeray.o = i.org;
-				// eyeray.o = _WorldSpaceCameraPos;
 				eyeray.d = normalize(i.position - _WorldSpaceCameraPos.xyz );
-				// return float4(eyeray.d*1.1, 1.);
 				float	tnear, tfar;
-				bool hit = IntersectBox(eyeray, float3(-3,-3,-3)*3., 3.*float3(3,3,3), tnear, tfar );
-				// if (!hit)
-					// discard;
+				bool hit = IntersectBox(eyeray, float3(-3,-3,-3)*7., 7.*float3(3,3,3), tnear, tfar );
 				if (tnear < 0.)
-				{
 					tnear = 0.;
-					
-				}
 				float3	pnear = eyeray.o + tnear * eyeray.d;
 				float3	pfar  = eyeray.o + tfar  * eyeray.d;
+				eyeray.o += tnear * eyeray.d;
 
 				C = 0;
-				/*
-				
-				F = 1/ e ^(t * d).
-
-				Where t is the distance traveled through some media and 
-				d is the density of the media. This is how cheap unlit fog has been calculated in games for quite some time. This comes from the Beer-Lambert law which defines transmittance through a volume of particles as: 
-
-				Transmittance = e ^ (-t * d).
-				
-				*/
 				float3	h = 0;
 				float4	s = 0;
 				float	dbg = 0;
 				float	dens, rawDens;
-				float3	dir = eyeray.d;//normalize(pnear-pfar);
+				float3	dir = eyeray.d;
 				
-const int nbSample = 550;
+const int nbSample = 150;
 
 float4	color		= float4(0, 0, 0, 0);
 
 float	dstep        = zMax / float(nbSample);
-float3	p           = pnear ;// * 30;
-float	T			= 1;
+float3	p           = pnear ;
+float	T			= absorption;
 float	dist		= 0.;
 float	step_dist	= 0.;
+
 	[loop]
 	for(int i=0; i<nbSample; i++)
 	{
 		p = eyeray.o + eyeray.d * dist;
     	float4 col;
     	float density = calcdens(p);
-		float	d = max(( -density )*.6,0.0);
-		step_dist = d + dstep;	
 		density *= _DensityMult;
+		float	d = max(( -density )*.6, .0);
+		step_dist = d + dstep;	
     	if (density > 0.)
     	{
-			float	brightness = exp(-.6*density);
-			float4	fog = exp(.00125-step_dist * .2 * density);
-			color.xyzw += lerp(_ColorOne, _ColorTwo, clamp(density, 0., 1.))*T * ( float4(1.0, 1.0, 1.0, 1.0) - fog) * brightness;
+			float	brightness = exp(-.6*d);
+			float4	fog = exp(-step_dist * _AlphaDecay * density);
+			color.xyzw += 
+			float4(lerp(_ColorOne.xyz, _ColorTwo.xyz, clamp(density, 0., 1.)), 1.)
+			*
+			T
+			*
+			( float4(1.0, 1.0, 1.0, 1.0) - fog )
+			*
+			brightness;
 			T *= fog;
-			color.w = 1;
     	}
 		dist += step_dist;
 		if( T <= 0.0001 || dist > 200.)
 		    break;
 	}
-				C = (color);
-			    Color = C;
-	            return Color;
+	            return color;
             }
 
 
