@@ -91,8 +91,6 @@ public class AudioManager : MonoBehaviour
 		foreach (var f in bandBuffer)
 			m += f / 8;
 
-		Debug.Log("audioVolume: " + m);
-
 		audioVolume = m;
 	}
 	

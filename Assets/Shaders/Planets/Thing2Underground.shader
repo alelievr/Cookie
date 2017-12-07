@@ -156,7 +156,7 @@ float	de_1(float3 p) // cylinder
 	float3	pr = p;	
 	float2	q;
     
-	q = float2(length(pr.yx) - 4., pr.z );
+	q = float2(length(pr.xy) - 4., pr.z );
 
     q.y = rot(q.xy, float2(-1.+sin(t*10.)*6., 0.)).x;
 

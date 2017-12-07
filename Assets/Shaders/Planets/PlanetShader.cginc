@@ -18,6 +18,7 @@ struct Input
 
 float4	_LocalScale;
 float4 	_ObjectCenter;
+float	_SoundVolume;
 
 Input vert(in appdata v)
 {
