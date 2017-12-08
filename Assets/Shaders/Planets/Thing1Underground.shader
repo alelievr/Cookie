@@ -43,7 +43,7 @@ float4	render(float3 dir, float3 pos)
 
     float3	col = float3(0., 0., 0.);
 
-    float4	inter = (march(pos, dir));
+    float4	inter = (march(pos-float3(0.,0.,t*30.), dir));
 
 	float3	base = float3(.8, .0, 1.);
     //rotate(dir.zx, .001251*inter.w+t*.1);
@@ -79,7 +79,7 @@ c_out.xyz += .0051*trinity*float3(.2, .150, .950);
 
 void mainImage(out float4 fragColor, float3 dir, float3 org)
 {
-    fragColor = float4(1,1,1,1);//render(dir, org);
+    fragColor = render(dir, org);
 }
 
 #define POWER	9.

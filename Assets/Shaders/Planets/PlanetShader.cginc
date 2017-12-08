@@ -66,6 +66,6 @@ fixed4 frag (Input i) : SV_TARGET
 		return float4(0, 1, 1, 0); //alpha bounding sphere
 	
 	mainImage(col, dir, org);
-//col = float4(1,1,1,1);
+
 	return col;
 }

@@ -81,7 +81,7 @@ void mainImage(out float4 c_out, float3 dir, float3 pos)
     t  = _Time.x;
     float3	col = float3(0., 0., 0.);
 
-    pos.z = t*FWD_SPEED;
+//    pos.z += t*FWD_SPEED;
 
     #ifdef	LOOKING_AROUND
     dir.zy *= float2x2(cos(t*.5),sin(t*.5),-sin(t*.5),cos(t*.5) );
@@ -92,7 +92,7 @@ void mainImage(out float4 c_out, float3 dir, float3 pos)
 
     // coloring (empiricism == power)
     #ifndef PERF_COLS
-    col.xyz = step(id_t, 0.)*blackbody( ( inter.y-.0251*inter.x ) * 500. ) + _SoundVolume;
+    col.xyz = step(id_t, 0.)*blackbody( ( inter.y-.0251*inter.x ) * 500. );
     col.xyz += step(1.,id_t)*float3(abs(sin(t+1.04)), abs(sin(t+2.09)), abs(sin(t+3.14)))*inter.x*.01; // .01 == 1./float(I_MAX)
     #else
     col.xyz = step(id_t, 0.)*blackbody( ( inter.y-.0251*inter.x ) * 500. )*inter.x*.01*float3(0.866555, 0.001592, 0.865759);
@@ -176,6 +176,7 @@ float	de_2(float3 p)
 
 float	scene(float3 p)
 {  
+    p.z -= -_Time.x*30.;
     float	mind = 1e5;
     #ifdef	CAM_PATH
     a = ( .8*(p.y*.015 + p.x*.015 + p.z *.15)  + t*3.);

@@ -81,55 +81,33 @@ float2 modA (float2 p, float count) {
     a = fmod(a, an)-an*.5;
     return float2(cos(a),sin(a))*length(p);
 }
-
+float   glob;
 float	scene(float3 p)
 {  
-    float	var;
+    float	var = glob;
     float	mind = 1e5;
     float3	op = p;
-//    rotate(p.xz, 1.57-.5*_Time.y);
-//    rotate(p.yz, 1.57-.5*_Time.y);
-//    rotate(p.xy, floor(p.z*6.)/6.-1.*_Time.y);//*(fmod(floor(p.z*10.), 2.)==1.?-1.:1.) );
-    var =
-        step(-1.+cos( floor( p.z*6.)/6.+_Time.y*1.)*3.14, fmod(atan2(p.x, p.y ), 6.28)-3.14 )
-        *
-        step(fmod(atan2(p.x, p.y ), 6.28)-3.14-1.5, -1.+cos( floor( p.z*3.)/1.+_Time.y*1.)*3.14)
-        /*
-        *
-        step(
-            .0
-            ,
-        (length(frac(float2(op.z, min(abs(op.x), abs(op.y)))*10.)-.5)-.2)
-	        )
-        */
-        ;
-    var = 
-        atan2(p.x, p.y)*1.+0.;
-    var = cos(var*1.+floor(p.z) +_Time.y*(fmod(floor(p.z), 2.)-1. == 0. ? -1. : 1.) );
+
+    var = atan2(p.x, p.y)*1.+0.;
+    var = cos(var*2.+floor(p.z) +_Time.y*(fmod(floor(p.z), 2.)-1. == 0. ? -1. : 1.) );
     float	dist_cylinder = 1e5;
     ret_col = 1.-float3(.5-var*.5, .5, .3+var*.5);
     mind = length(p.xy)-1.+.1*var;
-    //mind = max(mind, var*-(length(frac(float2(op.z, min(abs(op.x), abs(op.y)))*10.)-.5)-.1) );
     mind = max(mind, -(length(p.xy)-.9+.1*var));
-    p.xy = modA(p.yx, 50.+50.*sin(p.z*.25) );
-
-        float	dav = //cos( floor( p.z*6.)/6.+_Time.y*1.)*3.14
-//        -
-        ( cos((atan2(p.x, p.y )+p.z*6. )))//*sin(floor(p.z*3.) ) )
-        ;
-	p.z = frac(p.z*3.)-.5;
-//    p.y -= .01;
-        if (var != 0.)
+    // p.xy = modA(p.yx, 50. );
+	p.z = frac(p.z*1.)-.5;
+    rotate(p.xy, (fmod(floor(op.z), 2.)-1. == 0. ? -1. : 1.)*floor(op.z) );
+    if (var != 0.)
     {
-	    dist_cylinder = length(p.zy)-.0251-.25*sin(op.z*5.5);
-	    dist_cylinder = max(dist_cylinder, -p.x+.4+dav*.1*0. +clamp(var, .0, 1.) );
+	    dist_cylinder = length(p.zz)-.0251-.25*sin(op.z*5.5);
+	    dist_cylinder = max(dist_cylinder, -p.x+.4 + clamp(var, 0., 1.) );
     }
     mind = 
         min
         (
             mind
             ,
-			dist_cylinder
+			dist_cylinder*.4
         );
 
 //    mind = min(mind, (length(frac(float2(op.z, ( (op.y)))*3.)-.5)-.01) );
@@ -144,13 +122,15 @@ float2	march(float3 pos, float3 dir)
     float2	dist = float2(0.0, 0.0);
     float3	p = float3(0.0, 0.0, 0.0);
     float2	s = float2(0.0, 0.0);
-
+    p = pos + dir * 1.;
+glob = atan2(p.x,p.y);
+    [loop]
 	    for (float i = -1.; i < I_MAX; ++i)
 	    {
 	    	p = pos + dir * dist.y;
 	        dist.x = scene(p);
-	        dist.y += dist.x*.2; // makes artefacts disappear
-	        if (dist.x < E || dist.y > FAR)
+	        dist.y += dist.x; // makes artefacts disappear
+	        if (dist.x*.2 < E || dist.y > FAR)
             {
                 break;
             }
