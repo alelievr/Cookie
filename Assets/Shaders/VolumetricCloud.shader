@@ -32,11 +32,15 @@ Tags
             "CanUseSpriteAtlas"="True"
         }
 
+		Cull Off Lighting Off ZWrite On
+		ZTest Always
+		Blend SrcAlpha OneMinusSrcAlpha
+
         Cull Front
-        Lighting Off
-        ZWrite Off
-		BlendOp Add
-		Blend One OneMinusSrcAlpha
+        // Lighting Off
+        // ZWrite Off
+		// BlendOp Add
+		// Blend One OneMinusSrcAlpha
 
 		Pass
 		{
@@ -221,13 +225,15 @@ float	calcdens(float3 p)
 		)
 		;
 
+	// float3 ti = float3(sin(_Time.x), sin(-_Time.x)*.25, cos(_Time.x+1.57));
+	float3 ti = float3(0.1, 0, 0);
 	ret = max
 	(
 		ret
 		,
 		-
 		(
-			length(float2(length(p.xy)-10., p.z+3.))-3.-tex3D(_Volume, (p-_OffsetObj.xyz+10.*float3(sin(_Time.x), sin(-_Time.x)*.25, cos(_Time.x+1.57)) ) * _Scale ).w*4.
+			length(float2(length(p.xy)-10., p.z+3.))-3.-tex3D(_Volume, (p-_OffsetObj.xyz+10.*ti) * _Scale ).w*4.
 		)
 
 	);

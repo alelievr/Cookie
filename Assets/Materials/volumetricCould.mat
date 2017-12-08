@@ -73,7 +73,7 @@ Material:
     m_Floats:
     - Param: 0
     - _Alpha: 1
-    - _AlphaDecay: 0.059
+    - _AlphaDecay: 0.199
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DensityMult: 1.22
@@ -88,7 +88,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Param: 0.075
-    - _Phase: 13.1460905
+    - _Phase: 5.0478063
     - _PlanetSize: 0.98
     - _Scale: 0.0222
     - _Seed: 171
@@ -108,10 +108,10 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ColorOne: {r: 0, g: 1, b: 0.8676472, a: 1}
-    - _ColorTwo: {r: 0.5661765, g: 0.36634934, b: 0.14154378, a: 1}
+    - _ColorTwo: {r: 0.5661765, g: 0.3210642, b: 0.15403332, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LocalScale: {r: 50, g: 50, b: 50, a: 0}
-    - _ObjectCenter: {r: 0, g: 0, b: 289.90317, a: 0}
+    - _LocalScale: {r: 39.931698, g: 30.23237, b: 27.475235, a: 0}
+    - _ObjectCenter: {r: -57.2, g: 0, b: 289.90317, a: 0}
     - _Offset: {r: 4.93, g: 0.59, b: 0.52, a: 0}
     - _OffsetObj: {r: 74.3, g: -18.4, b: -25.8, a: 0.04}
     - _TerrainColor1: {r: 1, g: 1, b: 1, a: 1}
