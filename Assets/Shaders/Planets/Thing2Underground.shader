@@ -92,13 +92,12 @@ void mainImage(out float4 c_out, float3 dir, float3 pos)
 
     // coloring (empiricism == power)
     #ifndef PERF_COLS
-    col.xyz = step(id_t, 0.)*blackbody( ( inter.y-.0251*inter.x ) * 500. );
+    col.xyz = step(id_t, 0.)*blackbody( ( inter.y-.0251*inter.x ) * 500. ) + _SoundVolume;
     col.xyz += step(1.,id_t)*float3(abs(sin(t+1.04)), abs(sin(t+2.09)), abs(sin(t+3.14)))*inter.x*.01; // .01 == 1./float(I_MAX)
     #else
     col.xyz = step(id_t, 0.)*blackbody( ( inter.y-.0251*inter.x ) * 500. )*inter.x*.01*float3(0.866555, 0.001592, 0.865759);
     col.xyz += step(1.,id_t)*float3(0.865759, 0.866555, 0.001592)*inter.x*.01;
     #endif
-
     
     /*
 	* lighting originally taken from gltracy : https://www.shadertoy.com/view/XsB3Rm
