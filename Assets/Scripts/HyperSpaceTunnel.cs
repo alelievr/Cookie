@@ -5,9 +5,11 @@ using UnityEngine.UI;
 
 public class HyperSpaceTunnel : MonoBehaviour
 {
+	public Text				finalText;
 	public ParticleSystem	outSystem;
 	public Image			fadeImage;
 	public AnimationCurve	fadeCurve;
+	public GameObject		plexus;
 	public float			outTime = 5.5f;
 	public float			outFadeTime = .9f;
 	public float			fadeTime = 1;
@@ -19,22 +21,45 @@ public class HyperSpaceTunnel : MonoBehaviour
 		mySystems = GetComponentsInChildren< ParticleSystem >();
 		outSystem.gameObject.SetActive(false);
 		StartCoroutine(HyperSpaceOut());
+		StartCoroutine(FinalFade());
+		StartCoroutine(DisplayPlexus());
+
+		plexus.SetActive(false);
 	}
 
 	IEnumerator Fade(bool @in)
 	{
 		float t = Time.timeSinceLevelLoad;
 		Color fadeColor = fadeImage.color;
+		Color textColor = finalText.color;
 
 		while (t + fadeTime > Time.timeSinceLevelLoad)
 		{
 			float d = Time.timeSinceLevelLoad - t;
 			fadeColor.a = fadeCurve.Evaluate((@in) ? d : 1 - d);
+			textColor.a = fadeColor.a;
 			fadeImage.color = fadeColor;
+			finalText.color = textColor;
 			yield return new WaitForEndOfFrame();
 		}
 		fadeColor.a = (@in) ? 1 : 0;
 		fadeImage.color = fadeColor;
+	}
+
+	IEnumerator FinalFade()
+	{
+		yield return new WaitForSeconds(250);
+
+		finalText.enabled = true;
+		finalText.color = new Color(0, 0, 0, 0);
+		yield return Fade(true);
+	}
+
+	IEnumerator DisplayPlexus()
+	{
+		yield return new WaitForSeconds(200);
+
+		plexus.SetActive(true);
 	}
 
 	IEnumerator HyperSpaceOut()

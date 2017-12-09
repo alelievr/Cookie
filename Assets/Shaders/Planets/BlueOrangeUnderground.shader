@@ -56,7 +56,7 @@ void mainImage(out float4 c_out, float3 dir, float3 pos)
     t  = _Time.y*.125;
     float3	col = float3(0., 0., 0.);
 
-    pos.z = 4.5+_Time.y*2.+pos.x;
+    pos.z = 4.5+_Time.y*2.-pos.x*10;
     pos.x = 0.;
     pos.y = 0.;
     h*=0.;
