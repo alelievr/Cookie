@@ -13,6 +13,7 @@ public class SetupCamera : MonoBehaviour
 		virtualCamera = GetComponent< CinemachineVirtualCamera >();
 		path = FindObjectOfType< CinemachinePath >();
 
+		var t = virtualCamera.GetCinemachineComponent< CinemachineTrackedDolly >();
 	}
 	
 }

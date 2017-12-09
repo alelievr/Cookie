@@ -67,7 +67,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
-    - _SoundVolume: 0.2474674
+    - _SoundVolume: 0.425164
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
@@ -76,4 +76,4 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LocalScale: {r: 1, g: 1, b: 1, a: 0}
-    - _ObjectCenter: {r: -59.98, g: -10.95, b: 292.82, a: 0}
+    - _ObjectCenter: {r: -60.661, g: -10.95, b: 291.846, a: 0}
