@@ -82,7 +82,7 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LocalScale: {r: 1, g: 1, b: 1, a: 0}
-    - _ObjectCenter: {r: -44.64, g: -9.13, b: 288.91, a: 0}
+    - _ObjectCenter: {r: -44.709, g: -9.032, b: 288.91, a: 0}
     - _TerrainColor1: {r: 0.33823532, g: 0.14153741, b: 0.034818336, a: 1}
     - _TerrainColor2: {r: 0.45588237, g: 0.33640975, b: 0.22794119, a: 1}
     - _TerrainColor3: {r: 0.2352941, g: 0.08275862, b: 0, a: 1}

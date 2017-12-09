@@ -8,3 +8,6 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/bal-khan's explosion.unity
     guid: 50fcd73c02d964223b0bed63370bf93f
+  - enabled: 1
+    path: Assets/Scenes/FinalScene.unity
+    guid: 86463b06744744d58b11bafdfdb2b753
