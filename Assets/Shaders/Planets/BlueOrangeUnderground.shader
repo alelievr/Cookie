@@ -56,6 +56,7 @@ void mainImage(out float4 c_out, float3 dir, float3 pos)
     t  = _Time.y*.125;
     float3	col = float3(0., 0., 0.);
 
+    pos.z += 4.5-_Time.y*2.;
     h*=0.;
     float2	inter = (march(pos, dir));
     if (inter.y <= FAR)
@@ -121,6 +122,8 @@ float2	march(float3 pos, float3 dir)
     float2	dist = float2(0.0, 0.0);
     float3	p = float3(0.0, 0.0, 0.0);
     float2	s = float2(0.0, 0.0);
+    dir.xz = dir.zx;
+    pos.zx = pos.xz;
     rotate(dir.xz, 1.57);
     p = pos + dir * 1.;
 glob = atan2(p.x,p.y);
