@@ -56,7 +56,6 @@ void mainImage(out float4 c_out, float3 dir, float3 pos)
     t  = _Time.y*.125;
     float3	col = float3(0., 0., 0.);
 
-    pos.z = 4.5-_Time.y*2.;
     h*=0.;
     float2	inter = (march(pos, dir));
     if (inter.y <= FAR)
@@ -89,7 +88,7 @@ float	scene(float3 p)
     float3	op = p;
 
     var = atan2(p.x, p.y)*1.+0.;
-    var = cos(var*2.+floor(p.z) +_Time.y*(fmod(floor(p.z), 2.)-1. == 0. ? -1. : 1.) );
+    var = cos(var*2.+floor(p.z) +_Time.x*(fmod(floor(p.z), 2.)-1. == 0. ? -1. : 1.) );
     float	dist_cylinder = 1e5;
     ret_col = 1.-float3(.5-var*.5, .5, .3+var*.5);
     mind = length(p.xy)-1.+.1*var;
