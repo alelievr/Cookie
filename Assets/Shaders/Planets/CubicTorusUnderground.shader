@@ -120,12 +120,12 @@ float	mylength(float2 p)
 float	scene(float3 p)
 {
     float	mind = 1e5;
-    p.z -= -20.;
-    p.z -= _Time.y*5.;
+    // p.z -= -20.;
+    p.z -= -_Time.x*50.;
 
     p.y += sin(_Time.y*-1.+p.z*.5)*.5;
     p.x += cos(_Time.y*-1.+p.z*.5)*.5;
-    // rotate(p.xy, p.z*.25 + 1.0*sin(p.z*.125 - _Time.y*0.5) + 1.*_Time.y);
+    rotate(p.xy, p.z*.25 + 1.0*sin(p.z*.06125 - _Time.x*0.5) + 5.25*_Time.x);
     
     // float	tube = max(-(length(p.yx)-2.), (length(p.yx)-8.));
     // tube = max(tube, p.z-10.-0./length(p.yx*.06125) );
@@ -133,15 +133,15 @@ float	scene(float3 p)
     float3	pr = p;
     
     pr.xy = frac(p.xy*.5)-.5;
-    id = float3(floor(p.xy*.5), floor(p.z*1.));
+    id = float3(floor(p.xy*.5), floor(p.z*5.));
     p.z += (fmod(id.x*1., 2.)-1. == 0. ? 5. : 0. );
     p.z += (fmod(id.y*1., 2.)-1. == 0. ? 5. : 0. );
-    // rotate(pr.xy, clamp( (fmod(floor(p.z*.5), 2.)-1. == 0. ? 1. : -1.)+(fmod(id.x, 2.)-1. == 0. ? 1. : -1.) + (fmod(id.y, 2.)-1. == 0. ? 1. : -1.), -2., 2.) * _Time.y*2.+(fmod(id.x, 2.)-1. == 0. ? -1. : -1.)*p.z*2.5 + _Time.y*0. );
+    rotate(pr.xy, clamp( +(fmod(id.x, 2.)-1. == 0. ? 1. : -1.) + (fmod(id.y, 2.)-1. == 0. ? 1. : -1.), -2., 2.) * _Time.y*2.+(fmod(id.x, 2.)-1. == 0. ? -1. : -1.)*p.z*2.5 + _Time.y*0. );
     
     pr.xy = abs(pr.xy)-.05-(sin(p.z*0.5+_Time.y*0.)*.15);
     pr.xy *= clamp(1./length(pr.xy), .0, 2.5);
-    pr.z = (frac(pr.z*1.)-.5);
-	mind = mylength(float2(mylength(pr.xy)-.1, pr.z ))-.04;
+    pr.z = (frac(pr.z*5.)-.5);
+	mind = mylength(pr.xy*(.1*pr.z+.5))-.051;//mylength(float2(mylength(pr.xy)-.1, pr.z ))-.04;
 
 //    mind = max(mind, tube );
     
@@ -155,7 +155,8 @@ float4	march(float3 pos, float3 dir)
     float3	p = float3(0.0, 0.0, 0.0);
     float4	step = float4(0.0, 0.0, 0.0, 0.0);
 	float3	dirr;
-rotate(dir.xy, .7);
+// rotate(dir.xy, .7);
+// rotate(dir.xz, 1.57);
     [loop]
     for (int i = -1; i < I_MAX; ++i)
     {

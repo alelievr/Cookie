@@ -176,6 +176,7 @@ float	de_2(float3 p)
 
 float	scene(float3 p)
 {  
+    rotate(p.xz, .785);
     p.z -= -_Time.x*30.;
     float	mind = 1e5;
     #ifdef	CAM_PATH

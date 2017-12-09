@@ -206,7 +206,7 @@ float4	march(float3 pos, float3 dir)
     {
         dirr = dir;
         //rotate(dirr.xy, .51*dist.y-t*2.1);
-        rotate(dirr.xy, .51*dist.y*0.-.001*floor(t*2000.1-dist.y*300.)) ;
+        rotate(dirr.xy, -(.51*dist.y*0.-.001*floor(t*2000.1-dist.y*300.))) ;
     	p = pos + dirr * dist.y;
         //p.z -=20.;
         dynamiceps = -dist.x+(dist.y)/(50.);

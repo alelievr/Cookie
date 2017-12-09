@@ -55,7 +55,7 @@ void mainImage(out float4 c_out, float3 dir, float3 pos)
 //	float3	dir = camera(uv);
     // float3	pos = float3(-.0, .0, 25.0-sin(_Time.x*.125)*25.*0.-21.+2.);
 
-    float4	inter = (march(pos-float3(-1.5,.0, 10.), dir));
+    float4	inter = (march(pos-float3(-5.0,.0, 0.), dir));
 
     if (inter.y == 1.)
     {
