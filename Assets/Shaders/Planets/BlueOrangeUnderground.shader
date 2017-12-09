@@ -122,6 +122,7 @@ float2	march(float3 pos, float3 dir)
     float2	dist = float2(0.0, 0.0);
     float3	p = float3(0.0, 0.0, 0.0);
     float2	s = float2(0.0, 0.0);
+    rotate(dir.xz, 1.57);
     p = pos + dir * 1.;
 glob = atan2(p.x,p.y);
     [loop]
